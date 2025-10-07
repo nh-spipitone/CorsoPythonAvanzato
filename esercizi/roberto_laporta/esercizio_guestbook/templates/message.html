@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Messaggi</title>
+  </head>
+  <body>
+    <h1>Messaggio trovato:</h1>
+
+    <br />
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        width: 400px;
+        border: 1px solid #ccc; /* Aggiunto solo per visibilità */
+        margin-bottom: 10px;
+        padding: 10px;
+      "
+    >
+      <h3>{{ message.author }}</h3>
+
+      <p>{{ message.text }}</p>
+    </div>
+
+    <br />
+
+    <form method="get" action="{{ url_for('get_messages') }}">
+      <button type="submit">Lista Messaggi</button>
+    </form>
+  </body>
+</html>
