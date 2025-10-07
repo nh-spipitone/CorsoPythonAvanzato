@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+</head>
+<body>
+    <h1>Nuovo messaggio</h1>
+    <form method="post">
+        <label for="author">Autore</label>
+        <input type="text" name="author" id="author" required></input>
+        <label for="text">Testo del messaggio:</label>
+        <textarea name="text" id="text" rows="30"required></textarea>
+        <input type="submit" value="Inserisci"> </input>
+    </form>
+</body>
+</html>
