@@ -25,8 +25,9 @@ LOGIN_HTML = """
 </form>"""  # Template HTML per la pagina di login
 
 
+@app.route("/hello")  # Definisce la route /hello/<name>
 @app.route("/welcome/<username>")  # Definisce la route /welcome/<username>
-def welcome(username):  # Funzione associata alla route
+def welcome(username=None):  # Funzione associata alla route
     return f"Benvenuto, {escape(username)}!"  # Restituisce un messaggio di benvenuto, sanificando l'username
 
 
