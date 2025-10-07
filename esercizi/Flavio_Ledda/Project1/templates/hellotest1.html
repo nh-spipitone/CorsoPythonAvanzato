@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <title>Hello Flask</title>
+</head>
+<body>
+<a href = "{{ url_for('show_message') }}"> Scrivi un messaggio </a>
+{% for p in messages %}
+    <p> {{p}} 
+        <!-- la p contiene il messaggio singolo per la lista di messaggi che viene passata -->
+         </p>
+{% endfor %}
+
+</body>
+</html>
