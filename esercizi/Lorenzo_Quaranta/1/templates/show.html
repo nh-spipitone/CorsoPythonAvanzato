@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='css/style.css')}}"
+    />
+  </head>
+  <body>
+    <h1>Messaggio di {{messaggio['author']}}</h1>
+
+    <div class="messaggio">{{messaggio['text']}}</div>
+  </body>
+</html>

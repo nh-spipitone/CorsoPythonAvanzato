@@ -18,3 +18,21 @@ body {
 .messaggio {
   margin-bottom: 2em;
 }
+
+#body-404 {
+  background-image: radial-gradient(
+    circle,
+    rgb(40, 240, 240),
+    rgb(30, 170, 255),
+    rgb(15, 90, 255),
+    blue
+  );
+}
+
+#msg-404 {
+  margin-top: 16%;
+  font-size: 12em;
+}
+#h1-404 {
+  font-size: 4em;
+}

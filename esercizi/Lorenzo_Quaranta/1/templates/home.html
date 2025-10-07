@@ -7,8 +7,10 @@
     />
   </head>
   <body>
-    <h1>Messaggi</h1>
+    <h1>Benvenuto nel mio Guestbook</h1>
+
     {% if messaggi %}
+    <h2>Lista dei messaggi</h2>
     <div class="lista-messaggi">
       {% for m in messaggi %}
       <span class="messaggio">{{m['author']}} dice: {{m['text']}} </span>
