@@ -55,6 +55,33 @@ def login():  # Funzione associata alla route
     return render_template_string(LOGIN_HTML)  # Se GET, mostra il form di login
 
 
+# -------------------- alternativa --------------------
+@app.get("/login")  # Definisce la route /login per richieste GET
+def get_login():  # Funzione associata alla route GET /login
+    return render_template_string(
+        LOGIN_HTML
+    )  # Mostra il form di login usando il template HTML
+
+
+@app.post("/login")  # Definisce la route /login per richieste POST
+def post_login():  # Funzione associata alla route POST /login
+    username = request.form.get(
+        "username", ""
+    )  # Ottiene il valore di username dal form
+    password = request.form.get(
+        "password", ""
+    )  # Ottiene il valore di password dal form
+    if (
+        username == "admin" and password == "secret"
+    ):  # Controlla se le credenziali sono corrette
+        return redirect(
+            url_for("welcome", username=username)
+        )  # Reindirizza alla pagina di benvenuto
+    else:
+        flash("Credenziali errate")  # Mostra un messaggio di errore
+        return redirect(url_for("login"))  # Reindirizza nuovamente alla pagina di login
+
+
 @app.route("/")  # Definisce la route principale /
 def home():  # Funzione associata alla route
     link = url_for("login")  # Ottiene l'URL per la pagina di login
