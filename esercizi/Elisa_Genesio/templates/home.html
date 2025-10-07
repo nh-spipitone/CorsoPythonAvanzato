@@ -1,0 +1,24 @@
+{% extends 'base.html' %} {% block title %}Home - Guestbook{% endblock %} {%
+block content %}
+<h1>Guestbook</h1>
+{% if messages %}
+<ul>
+  {% for m in messages %}
+  <li>
+    <strong>{{ m.author }}</strong>: {{ m.text }} [<a
+      href="{{ url_for('show_message', msg_id=m.id) }}"
+      >view</a
+    >]
+  </li>
+  {% endfor %}
+</ul>
+<div>
+  {% if page > 1 %}
+  <a href="{{ url_for('home') }}?page={{ page-1 }}">Prev</a>
+  {% endif %} Page {{ page }} of {{ total_pages }} {% if page < total_pages %}
+  <a href="{{ url_for('home') }}?page={{ page+1 }}">Next</a>
+  {% endif %}
+</div>
+{% else %}
+<p>No messages yet.</p>
+{% endif %} {% endblock %}
