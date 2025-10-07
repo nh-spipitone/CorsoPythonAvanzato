@@ -5,6 +5,13 @@
     <title>Form di compilazione</title>
 </head>
 <body>
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+      <ul class="flash">
+        {% for m in msgs %}<li>{{ m }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 <form action="{{ url_for('add_author') }}" method="post">
     <label for="author">Inserisci il tuo nome:</label>
     <input type="text" id="author" name="author" required>
