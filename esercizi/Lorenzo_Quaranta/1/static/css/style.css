@@ -27,6 +27,7 @@ body {
     rgb(15, 90, 255),
     blue
   );
+  background-size: 100% 150%;
 }
 
 #msg-404 {
