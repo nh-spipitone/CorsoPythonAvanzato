@@ -3,17 +3,21 @@ import json
 from os import path,mkdir
 app = Flask(__name__)
 if(not path.exists("data/messages.json") ):
-    mkdir("data")
+    if not path.exists("data"):
+        mkdir("data")
     messaggi=open("./data/messages.json","x")
+    json.dump([],messaggi)
     messaggi.close()
+
     
 
 @app.route("/")
 def home():
-    messaggi_json =open("./data/messages.json","r")
+    messaggi_json =open("data/messages.json","r")
     messaggi=json.load(messaggi_json)
+    print(messaggi)
     messaggi_json.close()
-    return render_template("home.html",messages=messaggi)
+    return render_template("home.html",messaggi=messaggi)
 
 @app.route("/new",methods=["GET", "POST"])
 def newmsg():
@@ -21,8 +25,12 @@ def newmsg():
         author=request.form['author']
         text=request.form['text']
         newmessage={"author":author,"text":text}
-        messaggi=open("data/messages.json","w+")
-        json.dump(newmessage,messaggi)
+        messaggi=open("data/messages.json","r")
+        mess_lista=json.load(messaggi)
+        mess_lista.append(newmessage)
+        messaggi.close()
+        messaggi=open("data/messages.json","w")
+        json.dump(mess_lista,messaggi)
         messaggi.close()
         return redirect(url_for("home"))
     else:

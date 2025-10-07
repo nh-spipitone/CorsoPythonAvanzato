@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head> </head>
-  <body></body>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='css/style.css')}}"
+    />
+  </head>
+  <body>
+    <h1>Messaggi</h1>
+    {% if messaggi %}
+    <div class="lista-messaggi">
+      {% for m in messaggi %}
+      <span class="messaggio">{{m['author']}} dice: {{m['text']}} </span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>There are no messages</p>
+    {%endif%}
+  </body>
 </html>

@@ -8,3 +8,13 @@ body {
   background-color: #f3f7ff;
   text-align: center;
 }
+.lista-messaggi {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.messaggio {
+  margin-bottom: 2em;
+}
