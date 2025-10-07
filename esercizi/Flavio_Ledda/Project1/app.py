@@ -32,10 +32,10 @@ def add_author():
     author = (request.form.get("author") or "").strip()
     message = (request.form.get("message") or "").strip()
     if len(author) > 30:
-        flash("Hai superato il limite di 30 caratteri")
+        flash("Hai superato il limite di 30 caratteri", "error")
         return redirect(url_for("show_message"))
     elif len(message) > 200:
-        flash("Hai superato il limite di 200 caratteri")
+        flash("Hai superato il limite di 200 caratteri", "error")
         return redirect(url_for("show_message"))
     messagesList.append(f"{author}: {message}")
     return redirect(url_for("home"))
