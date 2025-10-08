@@ -8,6 +8,8 @@ form {
 body {
   background-color: #f3f7ff;
   text-align: center;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    sans-serif;
 }
 nav {
   display: flex;
@@ -45,7 +47,7 @@ button a {
   width: 30%;
 }
 #author-label {
-  width: 12%;
+  width: 13%;
 }
 .messaggio {
   margin-bottom: 2em;
