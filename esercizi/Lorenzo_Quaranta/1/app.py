@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, redirect,url_for,flash
 import json
 from os import path,mkdir
-import uuid
+
+def next_id(arr):
+    return (arr[-1]["id"] + 1) if arr else 1
+
 app = Flask(__name__)
 if(not path.exists("data/messages.json") ):
     if not path.exists("data"):
         mkdir("data")
-    messaggi=open("./data/messages.json","x")
+    messaggi=open("./data/messages.json","x", encoding="utf-8")
     json.dump([],messaggi)
     messaggi.close()
 
@@ -26,12 +29,12 @@ def newmsg():
         author=request.form['author']
         text=request.form['text']
         newmessage={"author":author,"text":text}
-        messaggi=open("data/messages.json","r")
+        messaggi=open("data/messages.json","r", encoding="utf-8")
         mess_lista=json.load(messaggi)
-        newmessage['id']=str(uuid.uuid4())
+        newmessage['id']=next_id(mess_lista)
         mess_lista.append(newmessage)
         messaggi.close()
-        messaggi=open("data/messages.json","w")
+        messaggi=open("data/messages.json","w", encoding="utf-8")
         json.dump(mess_lista,messaggi)
         messaggi.close()
         return redirect(url_for("home"))
@@ -39,7 +42,7 @@ def newmsg():
         return render_template("new.html")
     
 @app.route("/msg/<msg_id>")
-def search(msg_id):
+def show(msg_id):
     messaggi=open("data/messages.json","r")
     mess_lista=json.load(messaggi)
     messaggio=[mess for mess in mess_lista if mess['id']==msg_id]

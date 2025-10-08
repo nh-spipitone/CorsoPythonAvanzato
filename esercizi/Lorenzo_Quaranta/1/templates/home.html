@@ -18,11 +18,16 @@
     <h2>Lista dei messaggi</h2>
     <div class="lista-messaggi">
       {% for m in messaggi %}
-      <span class="messaggio">{{m['author']}} dice: {{m['text']}} </span>
+      <span class="messaggio"
+        ><a href="{{ url_for('show',msg_id=m['id'])}}">#{{m['id']}}</a>-<b
+          >{{m['author']}}</b
+        >
+        dice : {{m['text']}}
+      </span>
       {% endfor %}
     </div>
     {% else %}
-    <p>There are no messages</p>
+    <p>Non ci sono messaggi</p>
     {%endif%}
   </body>
 </html>
