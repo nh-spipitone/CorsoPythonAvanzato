@@ -78,10 +78,11 @@ print("Coincidono:", data_1 == data_2)
 
 # 8. **Rinomina** – Rinomina `to_rename.txt` in `renamed.txt` usando `os.rename(src, dst)`.
 
-os.rename(to_rename,"renamed.txt")
+renamed_path=os.path.join(notes_dir,"renamed.txt")
+os.rename(to_rename,renamed_path)
 
 
 # 9. **Cleanup opzionale** – Se la variabile d'ambiente `WS_CLEAN` vale `"1"`, elimina `renamed.txt` con `os.remove(...)` (se esiste).
 
 if(os.environ.get("WS_CLEAN")=="1"):
-    os.remove(to_rename)
+    os.remove(renamed_path)
