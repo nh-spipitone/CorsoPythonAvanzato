@@ -28,7 +28,7 @@ def newmsg():
         newmessage={"author":author,"text":text}
         messaggi=open("data/messages.json","r")
         mess_lista=json.load(messaggi)
-        newmessage['id']=uuid.uuid4()
+        newmessage['id']=str(uuid.uuid4())
         mess_lista.append(newmessage)
         messaggi.close()
         messaggi=open("data/messages.json","w")
