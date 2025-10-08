@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Messaggio #{{ m.id }}{% endblock %}
+{% block content %}
+  <h1>Messaggio #{{ m.id }}</h1>
+  <p><strong>{{ m.author }}</strong></p>
+  <p>{{ m.text }}</p>
+  <p><a href="{{ url_for('home') }}">← Torna</a></p>
+{% endblock %}
