@@ -15,7 +15,8 @@
    os.remove(path) # elimina cartella o file
    os.rename(src,dst) #rinomina danto prima il path della cartella o file e poi come vorremmo rinominarlo
    os.environ.get("NOME_VAR") #leggi variabili d' ambiente
-   os.path.join(a,b,...) unire parti di path
+   os.path.join(a,b,...) # unire parti di path
+   os.path.exists(path)  #verifica se un path essiste e ritorna vero o falso
 ```
 
 # open
