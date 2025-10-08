@@ -41,16 +41,15 @@ def newmsg():
     else:
         return render_template("new.html")
     
-@app.route("/msg/<msg_id>")
+@app.route("/msg/<int:msg_id>")
 def show(msg_id):
     messaggi=open("data/messages.json","r")
     mess_lista=json.load(messaggi)
-    messaggio=[mess for mess in mess_lista if mess['id']==msg_id]
-    messaggio= messaggio[0] if messaggio else None
-    messaggi.close()
-    if messaggio==None:
+    messaggio=next((mess for mess in mess_lista if mess['id']==msg_id),None)
+   
+    if not messaggio:
         return render_template("404.html")
-    else: return render_template("show",messaggio=messaggio)
+    else: return render_template("show.html",messaggio=messaggio)
 
 
     
