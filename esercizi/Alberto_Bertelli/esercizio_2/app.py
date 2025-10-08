@@ -84,5 +84,5 @@ os.rename(to_rename,renamed_path)
 
 # 9. **Cleanup opzionale** – Se la variabile d'ambiente `WS_CLEAN` vale `"1"`, elimina `renamed.txt` con `os.remove(...)` (se esiste).
 
-if(os.environ.get("WS_CLEAN")=="1"):
+if(os.environ.get("WS_CLEAN", "1")=="1"):
     os.remove(renamed_path)
