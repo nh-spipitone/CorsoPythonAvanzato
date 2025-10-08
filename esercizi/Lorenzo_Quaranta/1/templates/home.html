@@ -7,6 +7,11 @@
     />
   </head>
   <body>
+    <nav>
+      <button id="new">
+        <a href="{{ url_for('newmsg')}}">Nuovo messaggio</a>
+      </button>
+    </nav>
     <h1>Benvenuto nel mio Guestbook</h1>
 
     {% if messaggi %}

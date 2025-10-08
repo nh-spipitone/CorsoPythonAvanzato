@@ -4,6 +4,9 @@
 <link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
 </head>
 <body>
+    <nav>
+      <button id="home"><a href="{{ url_for('home')}}">Home</a></button>
+    </nav>
     <h1>Lascia un messaggio</h1>
     <form method="post">
         <label for="author">Autore</label>

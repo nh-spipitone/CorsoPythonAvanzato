@@ -7,6 +7,12 @@
     />
   </head>
   <body>
+    <nav>
+      <button id="new">
+        <a href="{{ url_for('newmsg')}}">Nuovo messaggio</a>
+      </button>
+      <button id="home"><a href="{{ url_for('home')}}">Home</a></button>
+    </nav>
     <h1>Messaggio di {{messaggio['author']}}</h1>
 
     <div class="messaggio">{{messaggio['text']}}</div>
