@@ -30,6 +30,7 @@ with open("esempio.json", "r", encoding="utf-8") as f:  # Apre il file JSON in l
 
 data = None  # Inizializza la variabile data a None
 
+
 with open(
     "esempio.json", "r", encoding="utf-8"
 ) as f:  # Apre di nuovo il file JSON in lettura
