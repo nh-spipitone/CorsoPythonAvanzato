@@ -1,0 +1,18 @@
+[
+  {
+    "nome": "index.json",
+    "size_bytes": 245
+  },
+  {
+    "nome": "nota1.txt",
+    "size_bytes": 18
+  },
+  {
+    "nome": "nota2.txt",
+    "size_bytes": 72
+  },
+  {
+    "nome": "to_rename.txt",
+    "size_bytes": 27
+  }
+]
