@@ -3,18 +3,50 @@ form {
   flex-direction: column;
   margin-left: 20%;
   margin-right: 20%;
+  justify-items: right;
 }
 body {
   background-color: #f3f7ff;
   text-align: center;
 }
+nav {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.5em;
+  justify-content: flex-end;
+}
+nav button {
+  margin-left: 1em;
+  width: 6%;
+  height: 2.5em;
+  border-radius: 1em;
+  font-family: "Rubik";
+}
+button a {
+  text-decoration: none;
+  color: black;
+}
+
 .lista-messaggi {
   display: flex;
   flex-direction: column;
   margin-left: 20%;
   margin-right: 20%;
 }
-
+#insertmsg {
+  width: 10%;
+  margin-top: 2em;
+  height: 2.5em;
+  border-radius: 1em;
+  position: relative;
+  left: 90%;
+}
+#author-input {
+  width: 30%;
+}
+#author-label {
+  width: 12%;
+}
 .messaggio {
   margin-bottom: 2em;
 }

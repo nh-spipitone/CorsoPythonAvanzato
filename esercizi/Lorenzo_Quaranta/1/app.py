@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect,url_for,flash
 import json
 from os import path,mkdir
-from itertools import count
+import uuid
 app = Flask(__name__)
-id_iterator=count(0,1)
 if(not path.exists("data/messages.json") ):
     if not path.exists("data"):
         mkdir("data")
@@ -29,7 +28,7 @@ def newmsg():
         newmessage={"author":author,"text":text}
         messaggi=open("data/messages.json","r")
         mess_lista=json.load(messaggi)
-        newmessage['id']=next(id_iterator)
+        newmessage['id']=uuid.uuid4()
         mess_lista.append(newmessage)
         messaggi.close()
         messaggi=open("data/messages.json","w")
@@ -39,7 +38,7 @@ def newmsg():
     else:
         return render_template("new.html")
     
-@app.route("/msg/<int:msg_id>")
+@app.route("/msg/<msg_id>")
 def search(msg_id):
     messaggi=open("data/messages.json","r")
     mess_lista=json.load(messaggi)
