@@ -50,6 +50,53 @@ def home():
     )
 
 
+# nuovo messaggio
+@app.route("/new", methods=["GET"])
+def new_message():
+    return render_template("new.html")
+
+
+# invio form nuvo messaggio
+@app.route("/new", methods=["POST"])
+def post_message():
+    author = request.form.get("author", "").strip()
+    text = request.form.get("text", "").strip()
+
+    # controlli
+    errors = []
+    if not author:
+        errors.append("Author cannot be empty.")
+    elif len(author) > 30:
+        errors.append("Author max 30 chars.")
+    if not text:
+        errors.append("Message cannot be empty.")
+    elif len(text) > 200:
+        errors.append("Message max 200 chars.")
+
+    if errors:
+        for e in errors:
+            flash(e, "error")
+        return render_template("new.html", author=author, text=text), 400
+
+    messages = load_messages()
+    next_id = max([m["id"] for m in messages], default=0) + 1
+    messages.append({"id": next_id, "author": author, "text": text})
+    save_messages(messages)
+
+    flash("Message posted!", "success")
+    return redirect(url_for("home"))
+
+
+# mostra singolo messaggio
+@app.route("/msg/<int:msg_id>")
+def show_message(msg_id):
+    messages = load_messages()
+    msg = next((m for m in messages if m["id"] == msg_id), None)
+    if not msg:
+        return render_template("404.html"), 404
+    return render_template("show.html", message=msg)
+
+
 # custom errore 404
 @app.errorhandler(404)
 def page_not_found(e):
