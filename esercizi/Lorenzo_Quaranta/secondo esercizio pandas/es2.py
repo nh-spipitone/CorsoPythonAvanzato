@@ -92,3 +92,57 @@ print("\nVendite per Prodotto:")
 print(vendite_per_prodotto)
 print("\nDataFrame Ordinato:")
 print(df_ordinato)
+
+'''Esercizio 2: Analisi dei Prodotti Più Venduti
+
+In questo esercizio, i ragazzi dovranno analizzare i dati delle vendite 
+per determinare quali sono i prodotti più venduti in base alla quantità venduta.
+
+Obiettivi:
+
+Raggruppa i dati per Prodotto e calcola la somma delle quantità vendute.
+
+Ordina i risultati in ordine decrescente per quantità.
+
+Mostra solo i primi 3 prodotti più venduti.
+
+'''
+print("\n3 prodotti più venduti:")
+top3_quantita=(df.groupby("Prodotto")["Quantità"]
+         .sum()
+         .head(3)
+         .rename("Vendite totali")
+         .sort_values(ascending=False)
+         .reset_index())
+print(top3_quantita)
+
+'''Esercizio 3: Analisi del Cliente con il Maggior Totale Acquistato
+Obiettivi:
+Raggruppa i dati per Cliente e calcola la somma totale delle vendite per ciascun cliente.
+
+Ordina i risultati in ordine decrescente per somma totale.
+
+Mostra il cliente che ha speso di più.'''
+print("\nCliente più spendaccione:")
+top_clienti=(df.groupby("Cliente")["Totale"]
+         .sum()
+         .sort_values(ascending=False)
+         .head(1)
+         .rename("Acquisti")
+         .reset_index())
+print(top_clienti)
+
+'''
+Esercizio 4: Analisi del Prodotto con il Maggior Guadagno in un Singolo Acquisto
+
+Obiettivi:
+
+Calcola il totale per ogni transazione (è già presente nel DataFrame come Totale).
+
+Trova il prodotto con il maggior guadagno in un singolo acquisto (individuato dal massimo valore nella colonna Totale).
+
+Mostra il prodotto e il cliente che ha generato il guadagno maggiore.
+'''
+miglior_acquisto=df[['Prodotto','Cliente','Totale']].sort_values(by=['Totale'],ascending=False).head(1)
+print("\nMiglior acquisto:")
+print(miglior_acquisto)
