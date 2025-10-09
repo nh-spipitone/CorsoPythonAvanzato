@@ -53,3 +53,21 @@ df_studenti["Media"]=(df_studenti["Matematica"]+df_studenti["Fisica"]+df_student
 
 print("\n modificato:")
 print(df_studenti)
+
+print("\n studenti con la media superiore o uguale al 27:")
+
+mask= df_studenti["Media"]>=27
+
+print(df_studenti[mask])
+
+print("\n Studenti ordinati in base alla media:")
+
+df_studenti=df_studenti.sort_values(by=["Media"],ascending=False)
+
+print(df_studenti)
+
+raggruppati=df_studenti.groupby(df_studenti["Matematica"] >= 27)[["Fisica","Informatica"]].mean()
+print("\n Studenti raggruppati per Matematica >= 27:")
+
+
+print(raggruppati)
