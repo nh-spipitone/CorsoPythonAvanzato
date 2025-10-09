@@ -3,7 +3,7 @@ from typing import Any, Literal
 from flask import Blueprint, abort, request
 
 
-bp = Blueprint("task", "task", url_prefix="/task")
+bp = Blueprint("task", "task", url_prefix="/tasks")
 cache: dict[int, Any] = {}
 current_task_id: int = 0
 
@@ -16,7 +16,7 @@ def get_task(task_id: int) -> tuple[dict[str, Any], int]:
     return cache[task_id], 200
 
 
-@bp.route("/", methods=("POST",))
+@bp.route("/", methods=("POST",'GET'))
 def post_task() -> tuple[dict[str, Any], int]:
     task_name = request.form.get("task-name")
     description = request.form.get("description")
@@ -31,3 +31,6 @@ def post_task() -> tuple[dict[str, Any], int]:
     }
     cache[current_task_id] = obj
     return obj, 201
+
+def get_tasks():
+    pass
