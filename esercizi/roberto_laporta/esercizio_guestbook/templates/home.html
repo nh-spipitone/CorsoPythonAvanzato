@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Messaggi</title>
+  </head>
+  <body>
+    <h1>Messaggi:</h1>
+
+    <br />
+
+    {% for message in messages %}
+
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        width: 400px;
+        border: 1px solid #ccc; /* Aggiunto solo per visibilità */
+        margin-bottom: 10px;
+        padding: 10px;
+      "
+    >
+      <h3>{{ message.author }}</h3>
+
+      <p>{{ message.text }}</p>
+    </div>
+
+    {% endfor %}
+    <br />
+
+    <form method="get" action="{{ url_for('new_message') }}">
+      <button type="submit">Nuovo Messaggio</button>
+    </form>
+  </body>
+</html>

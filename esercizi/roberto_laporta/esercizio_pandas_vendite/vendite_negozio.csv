@@ -1,0 +1,21 @@
+Data,Prodotto,Categoria,Prezzo,Quantità,Città,Canale
+2025-01-03,T-shirt Basic,Abbigliamento,12.99,2.0,Roma,Online
+2025-01-05,Jeans Slim,Abbigliamento,39.9,1.0,Roma,Negozio
+2025-01-06,Felpa Hoodie,Abbigliamento,29.5,1.0,Milano,Online
+2025-01-08,Sneakers Run,Calzature,59.0,1.0,Milano,Negozio
+2025-01-10,Calze Sport,Abbigliamento,4.5,3.0,Torino,Online
+2025-01-12,Cappello Lana,Accessori,9.99,2.0,Roma,Negozio
+2025-01-15,Zaino City,Accessori,24.9,1.0,Roma,Online
+2025-01-18,Sneakers Run,Calzature,59.0,2.0,Torino,Online
+2025-01-20,Felpa Hoodie,Abbigliamento,29.5,1.0,Milano,Negozio
+2025-01-22,Jeans Slim,Abbigliamento,39.9,2.0,Roma,Online
+2025-01-25,Cintura Pelle,Accessori,14.99,1.0,Torino,Negozio
+2025-01-27,T-shirt Basic,Abbigliamento,12.99,4.0,Milano,Online
+2025-01-28,Calze Sport,Abbigliamento,4.5,2.0,Roma,Online
+2025-01-29,Cappello Lana,Accessori,9.99,1.0,Torino,Online
+2025-01-30,Sneakers Run,Calzature,59.0,1.0,Roma,Negozio
+2025-01-31,T-shirt Basic,Abbigliamento,12.99,,Milano,Online
+2025-02-01,Zaino City,Accessori,,1.0,Milano,Negozio
+2025-02-02,Jeans Slim,Abbigliamento,39.9,1.0,Torino,Negozio
+2025-02-03,Felpa Hoodie,Abbigliamento,29.5,2.0,Roma,Online
+2025-02-04,Calze Sport,Abbigliamento,4.5,1.0,Roma,Negozio

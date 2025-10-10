@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block title %}New Message - Guestbook{% endblock %}
+{% block content %}
+<h1>New Message</h1>
+<form method="post" action="{{ url_for('post_message') }}">
+  <label
+    >Author (max 30)<br />
+    <input type="text" name="author" value="{{ author|default('') }}" /> </label
+  ><br /><br />
+  <label
+    >Message (max 200)<br />
+    <textarea name="text" rows="4">{{ text|default('') }}</textarea></label
+  ><br /><br />
+  <button type="submit">Send</button>
+</form>
+{% endblock %}

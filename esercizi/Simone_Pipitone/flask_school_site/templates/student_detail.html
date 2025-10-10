@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dettaglio Studente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>{{ student.name }} <span class="muted">— Classe {{ student.class }}</span></h1>
+      <nav>
+        <a class="btn" href="{{ url_for('students_list') }}">← Studenti</a>
+        <a class="btn" href="{{ url_for('new_grade', student_id=student.id) }}">+ Voto</a>
+        <a class="btn" href="{{ url_for('new_attendance', student_id=student.id) }}">+ Presenza</a>
+      </nav>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Media voti</h3>
+        <p class="metric">{{ summary.avg|round(2) if summary.count else "—" }}</p>
+        <p class="muted">{{ summary.count }} voti</p>
+      </div>
+      <div class="card">
+        <h3>Presenze</h3>
+        <p>Presenti: {{ summary.present }} — Assenti: {{ summary.absent }} — Ritardi: {{ summary.late }}</p>
+        <p class="muted">Minuti di ritardo totali: {{ summary.minutes_late }}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Voti</h2>
+      {% if grades %}
+        <table class="table">
+          <thead><tr><th>Data</th><th>Materia</th><th>Voto</th></tr></thead>
+          <tbody>
+            {% for g in grades %}
+              <tr><td>{{ g.date }}</td><td>{{ g.subject }}</td><td>{{ g.value }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">Nessun voto.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Presenze</h2>
+      {% if attendance %}
+        <table class="table">
+          <thead><tr><th>Data</th><th>Stato</th><th>Minuti ritardo</th></tr></thead>
+          <tbody>
+            {% for a in attendance %}
+              <tr><td>{{ a.date }}</td><td>{{ a.status }}</td><td>{{ a.minutes_late or 0 }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">Nessuna presenza registrata.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

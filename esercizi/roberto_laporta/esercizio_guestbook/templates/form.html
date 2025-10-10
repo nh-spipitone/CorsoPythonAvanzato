@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Crea Nuovo Messaggio</title>
+  </head>
+  <body>
+    <h1>Crea un Nuovo Messaggio</h1>
+    <form method="POST" action="{{ url_for('new_message') }}">
+      <div style="display: flex; flex-direction: column; width: 300px">
+        <label for="author">Author (max 30):</label>
+        <input type="text" id="author" name="author" maxlength="30" required />
+      </div>
+      <br />
+
+      <div style="display: flex; flex-direction: column; width: 400px">
+        <label for="text">Text (max 200):</label>
+        <textarea
+          id="text"
+          name="text"
+          rows="4"
+          maxlength="200"
+          required
+        ></textarea>
+      </div>
+      <br />
+
+      <button type="submit">Invia Messaggio</button>
+    </form>
+  </body>
+</html>

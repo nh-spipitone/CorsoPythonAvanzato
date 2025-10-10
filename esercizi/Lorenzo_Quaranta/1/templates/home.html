@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='css/style.css')}}"
+    />
+  </head>
+  <body>
+    <nav>
+      <button id="new">
+        <a href="{{ url_for('newmsg')}}">Nuovo messaggio</a>
+      </button>
+    </nav>
+    <h1>Benvenuto nel mio Guestbook</h1>
+
+    {% if messaggi %}
+    <h2>Lista dei messaggi</h2>
+    <div class="lista-messaggi">
+      {% for m in messaggi %}
+      <span class="messaggio"
+        ><a href="{{ url_for('show',msg_id=m['id'])}}">#{{m['id']}}</a>-<b
+          >{{m['author']}}</b
+        >
+        dice : {{m['text']}}
+      </span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>Non ci sono messaggi</p>
+    {%endif%}
+  </body>
+</html>

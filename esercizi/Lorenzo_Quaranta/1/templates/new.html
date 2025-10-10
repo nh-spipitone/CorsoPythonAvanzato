@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+</head>
+<body>
+    <nav>
+      <button id="home"><a href="{{ url_for('home')}}">Home</a></button>
+    </nav>
+    <h1>Lascia un messaggio</h1>
+    <form method="post">
+        <label for="author" id="author-label">Inserisci il tuo nome</label>
+        <input type="text" name="author" id="author-input" required></input>
+        <label for="text">Testo del messaggio:</label>
+        <textarea name="text" id="text" rows="30"required></textarea>
+        <input type="submit" value="Inserisci" id="insertmsg"> </input>
+    </form>
+</body>
+</html>
