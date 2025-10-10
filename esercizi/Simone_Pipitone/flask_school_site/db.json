@@ -1,0 +1,65 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "Giulia Rossi",
+      "class": "3A"
+    },
+    {
+      "id": 2,
+      "name": "Luca Bianchi",
+      "class": "3A"
+    },
+    {
+      "id": 3,
+      "name": "Sara Verdi",
+      "class": "3B"
+    }
+  ],
+  "grades": [
+    {
+      "id": 1,
+      "student_id": 1,
+      "subject": "Matematica",
+      "value": 8.0,
+      "date": "2025-09-20"
+    },
+    {
+      "id": 2,
+      "student_id": 1,
+      "subject": "Italiano",
+      "value": 7.5,
+      "date": "2025-09-27"
+    },
+    {
+      "id": 3,
+      "student_id": 2,
+      "subject": "Storia",
+      "value": 6.0,
+      "date": "2025-09-25"
+    }
+  ],
+  "attendance": [
+    {
+      "id": 1,
+      "student_id": 1,
+      "date": "2025-09-21",
+      "status": "present",
+      "minutes_late": 0
+    },
+    {
+      "id": 2,
+      "student_id": 1,
+      "date": "2025-09-22",
+      "status": "late",
+      "minutes_late": 10
+    },
+    {
+      "id": 3,
+      "student_id": 2,
+      "date": "2025-09-21",
+      "status": "absent",
+      "minutes_late": 0
+    }
+  ]
+}
