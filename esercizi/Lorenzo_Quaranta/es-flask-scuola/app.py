@@ -63,7 +63,15 @@ def get_student(id):
 
 @app.route("/")
 def show_dashboard():
-         db= load_db()
+        db= load_db()
+        num_studenti=len(db["students"])
+        num_voti=len(db["grades"])
+        num_presenze=0
+        for a in db["attendances"]:
+                if a["status"]=="present":
+                       presenze+=1
+        return render_template("index.html",num_studenti=num_studenti,num_voti=num_voti,num_presenze=num_presenze)
+
 
 @app.route("/students")
 def show_students():
