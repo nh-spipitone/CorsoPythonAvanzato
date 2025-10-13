@@ -26,11 +26,11 @@ Costruire una semplice API per la gestione di eventi, con i seguenti campi:
 
 
 # Lista delle Route
-POST	    `/events/`	            ✅ Crea un nuovo evento
-GET	        `/events/{event_id}`	🔍 Recupera i dettagli di un evento specifico tramite il suo UUID
-PATCH	    `/events/{event_id}`	✏️ Aggiorna parzialmente un evento esistente
-DELETE	    `/events/{event_id}`	❌ Elimina un evento
-GET	        `/events/`	            📃 (Opzionale) Restituisce la lista di tutti gli eventi (per test/debug)
+- POST	    `/events/`	            ✅ Crea un nuovo evento
+- GET	        `/events/{event_id}`	🔍 Recupera i dettagli di un evento specifico tramite il suo UUID
+- PATCH	    `/events/{event_id}`	✏️ Aggiorna parzialmente un evento esistente
+- DELETE	    `/events/{event_id}`	❌ Elimina un evento
+- GET	        `/events/`	            📃 (Opzionale) Restituisce la lista di tutti gli eventi (per test/debug)
 
 
 #  Dettagli per ciascuna Route
