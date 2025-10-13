@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro Scolastico</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Registro Scolastico</h1>
+      <nav><a class="btn" href="{{ url_for('students_list') }}">Studenti</a></nav>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Studenti</h3>
+        <p class="metric">{{ stats.total_students }}</p>
+      </div>
+      <div class="card">
+        <h3>Voti</h3>
+        <p class="metric">{{ stats.total_grades }}</p>
+      </div>
+      <div class="card">
+        <h3>Presenze</h3>
+        <p class="metric">{{ stats.total_attendance }}</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nuova Presenza</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Nuova Presenza — {{ student.name }}</h1>
+      <a class="btn" href="{{ url_for('student_detail', student_id=student.id) }}">← Indietro</a>
+    </header>
+
+    {% if errors %}
+      <div class="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('new_attendance', student_id=student.id) }}" class="form">
+      <label>Data <input name="date" type="date" value="{{ form.date }}" required></label>
+      <label>Stato
+        <select name="status" required>
+          <option value="" disabled {% if not form.status %}selected{% endif %}>— Seleziona —</option>
+          <option value="present" {% if form.status=='present' %}selected{% endif %}>Presente</option>
+          <option value="absent" {% if form.status=='absent' %}selected{% endif %}>Assente</option>
+          <option value="late" {% if form.status=='late' %}selected{% endif %}>In ritardo</option>
+        </select>
+      </label>
+      <label>Minuti ritardo (se in ritardo) <input name="minutes_late" type="number" min="0" value="{{ form.minutes_late or '' }}"></label>
+      <button class="btn" type="submit">Salva</button>
+    </form>
+  </main>
+</body>
+</html>
