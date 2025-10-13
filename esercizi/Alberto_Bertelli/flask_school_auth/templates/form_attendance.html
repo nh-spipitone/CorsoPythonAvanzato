@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Nuova Presenza - {{ student.name }}{% endblock %}
+
+{% block content %}
+<header class="header">
+  <h1>✅ Nuova Presenza - {{ student.name }}</h1>
+  <a href="{{ url_for('student_detail', student_id=student.id) }}" class="btn btn-secondary">← Indietro</a>
+</header>
+
+{% if errors %}
+<div class="alert alert-danger">
+  <strong>Errori nel form:</strong>
+  <ul>
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="form-container">
+  <form method="POST" class="data-form">
+    <div class="form-group">
+      <label for="date">Data *</label>
+      <input 
+        type="date" 
+        id="date" 
+        name="date" 
+        value="{{ form.date }}"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="status">Stato *</label>
+      <select id="status" name="status" required>
+        <option value="">Seleziona uno stato</option>
+        <option value="present" {% if form.status == 'present' %}selected{% endif %}>Presente</option>
+        <option value="absent" {% if form.status == 'absent' %}selected{% endif %}>Assente</option>
+        <option value="late" {% if form.status == 'late' %}selected{% endif %}>Ritardo</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="minutes_late">Minuti di Ritardo (solo per ritardi)</label>
+      <input 
+        type="number" 
+        id="minutes_late" 
+        name="minutes_late" 
+        value="{{ form.minutes_late }}"
+        min="0"
+        placeholder="Es: 10"
+      >
+      <small>Obbligatorio se lo stato è "Ritardo"</small>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Salva Presenza</button>
+      <a href="{{ url_for('student_detail', student_id=student.id) }}" class="btn btn-secondary">Annulla</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
