@@ -179,8 +179,8 @@ def login():
         # - Se errate: flash message di errore e resta su login
         # ============================================
 
-        username=request.form.get["username"]
-        password=request.form.get["password"]
+        username=request.form["username"]
+        password=request.form["password"]
         remember_me = bool(request.form.get("remember", False))
         if username in users_db and check_password_hash(
             users_db[username]["password"], password
@@ -223,7 +223,7 @@ def dashboard():
 @login_required
 def logout():
     logout_user()
-    redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 
 # ============================================
