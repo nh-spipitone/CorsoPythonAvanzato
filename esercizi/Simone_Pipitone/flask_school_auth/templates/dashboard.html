@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Registro Scolastico{% endblock %}
+
+{% block content %}
+<header class="header">
+  <h1>Dashboard - Benvenuto {{ name }}!</h1>
+  <p class="subtitle">Panoramica del registro scolastico</p>
+</header>
+
+<section class="grid">
+  <div class="card">
+    <h3>👥 Studenti Totali</h3>
+    <p class="metric">{{ stats.total_students }}</p>
+    <a href="{{ url_for('students_list') }}" class="btn btn-small">Visualizza</a>
+  </div>
+  <div class="card">
+    <h3>📝 Voti Registrati</h3>
+    <p class="metric">{{ stats.total_grades }}</p>
+  </div>
+  <div class="card">
+    <h3>✅ Presenze Registrate</h3>
+    <p class="metric">{{ stats.total_attendance }}</p>
+  </div>
+</section>
+
+<section class="quick-actions">
+  <h2>Azioni Rapide</h2>
+  <div class="actions-grid">
+    <a href="{{ url_for('students_list') }}" class="action-card">
+      <span class="action-icon">👥</span>
+      <h3>Gestisci Studenti</h3>
+      <p>Visualizza e gestisci gli studenti</p>
+    </a>
+  </div>
+</section>
+{% endblock %}
