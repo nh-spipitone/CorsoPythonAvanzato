@@ -1,0 +1,16 @@
+
+<!-- templates/partials/_card.html -->
+{# TODO: ricevi 'user' nel context e stampa una card riutilizzabile #}
+<article class="card">
+  <h3>{{ user.name }}</h3>
+  <p>Ruolo: {{ user.role }}</p>
+  <p>Bilancio: {{ user.balance }}</p>
+  <div>
+    <strong>Nota (escapata):</strong>
+    {{ user.note_html }}
+  </div>
+  <div>
+    <strong>Nota (safe - NON USARE con input utente non sanitizzato):</strong>
+    {{ user.note_html|safe }}
+  </div>
+</article>
