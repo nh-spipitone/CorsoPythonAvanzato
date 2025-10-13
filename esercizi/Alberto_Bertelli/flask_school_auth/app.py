@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os, json
 from json import JSONDecodeError
 from datetime import datetime
+import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "db.json")
@@ -141,6 +142,8 @@ def index():
     }
     return render_template("index.html", stats=stats)
 
+
+
 #Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -165,7 +168,42 @@ def login():
     return render_template("login.html")
             
 
+@app.route  ("/register", methods=["GET","POST"])
+def register():
+    if request.method =="POST":
+        name = request.form.get("name","")
+        username =request.form.get("username","")
+        password =request.form.get("password","")
+        confirm_password = request.form.get("confirm_password","")
+        role = request.form.get("role","professore")
+        errors = []
+
+        if not username or len(username) < 3:
+            errors.append("Username deve avere almeno 3 caratteri")
+
+        if username in users_db:
+            errors.append("Username già esistente")
+        if not password or len(password) < 8:
+            errors.append("La password deve contenere alemno 8 caratteri")
+        if not re.search(r'[A-Z]', password):
+            errors.append("La password deve contenere almeno un carattere maiuscolo")
+        if not re.search(r'[0-9]', password):
+            errors.append("La password deve contenere almeno un carattere numerico")
+        if not confirm_password == password:
+            errors.append("La password è diversa dal confirm_password")
+
+        if errors:
+            for error in errors:
+                flash(error, "danger")
+            return render_template("register.html", form=request.form)
+                            
+        users_db[username] = {
+            "password": generate_password_hash(password),
+            "name": name,
+            "role": role
+            }
         
+
 
 
 @app.route("/dashboard")
@@ -365,6 +403,8 @@ def create_attendance(student_id):
 
 
 # --- API Routes (Opzionali - Non richiedono autenticazione per semplicità) ---
+
+
 
 
 @app.get("/api/students")
