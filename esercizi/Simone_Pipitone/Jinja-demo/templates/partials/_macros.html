@@ -1,6 +1,17 @@
 
 <!-- templates/partials/_macros.html -->
-{# TODO: definisci macro riutilizzabili, es. badge(label) #}
+
 {% macro badge(label) %}
-  <span class="badge">{{ label }}</span>
+  {% set label = (label or "")|lower %}
+  {% set cls = "neutral" %}
+  {% if label in ["admin", "owner"] %}
+    {% set cls = "danger" %}
+  {% elif label in ["moderator"] %}
+    {% set cls = "success" %}
+  {% elif label in ["guest"] %}
+    {% set cls = "muted" %}
+  {% else %}
+    {% set cls = "neutral" %}
+  {% endif %}
+  <span class="badge badge-{{ cls }}">{{ label }}</span>
 {% endmacro %}
