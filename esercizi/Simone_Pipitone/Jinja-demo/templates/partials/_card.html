@@ -1,0 +1,19 @@
+
+<!-- templates/partials/_card.html -->
+{# TODO: ricevi 'user' nel context e stampa una card riutilizzabile #}
+
+{% from 'partials/_macros.html' import badge %}
+<article class="card">
+  <h3>{{ user.name }}</h3>
+  <p>Ruolo: {{ badge(user.role) }}</p>
+  <p>Bilancio: {{ user.balance|euro }}</p>
+  <p>Ultimo accesso: {{ user.last_login|dtit }}</p>
+  <div>
+    <strong>Nota (escapata):</strong>
+    {{ user.note_html }}
+  </div>
+  <div>
+    <strong>Nota (safe - NON USARE con input utente non sanitizzato):</strong>
+    {{ user.note_html|safe }}
+  </div>
+</article>

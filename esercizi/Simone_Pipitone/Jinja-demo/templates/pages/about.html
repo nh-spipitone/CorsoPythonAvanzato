@@ -1,0 +1,22 @@
+
+<!-- templates/pages/about.html -->
+{% extends 'base.html' %}
+
+{% block title %}About{% endblock %}
+
+{% block head_extra %}
+<style>
+  .about-box { padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="about-box">
+    <h1>About</h1>
+    <p>Questa è una pagina di esempio. Personalizzami.</p>
+  </div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>console.log("about loaded");</script>
+{% endblock %}

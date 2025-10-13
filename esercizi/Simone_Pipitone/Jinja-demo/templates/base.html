@@ -1,0 +1,19 @@
+
+<!-- templates/base.html -->
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Demo Jinja{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% include 'partials/_navbar.html' %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts_extra %}{% endblock %}
+</body>
+</html>

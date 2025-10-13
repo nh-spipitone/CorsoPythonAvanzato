@@ -1,0 +1,17 @@
+
+<!-- templates/partials/_macros.html -->
+
+{% macro badge(label) %}
+  {% set label = (label or "")|lower %}
+  {% set cls = "neutral" %}
+  {% if label in ["admin", "owner"] %}
+    {% set cls = "danger" %}
+  {% elif label in ["moderator"] %}
+    {% set cls = "success" %}
+  {% elif label in ["guest"] %}
+    {% set cls = "muted" %}
+  {% else %}
+    {% set cls = "neutral" %}
+  {% endif %}
+  <span class="badge badge-{{ cls }}">{{ label }}</span>
+{% endmacro %}
