@@ -141,9 +141,96 @@ Template:
 
 ## 🥈 Livello 2: MEDIO (45-90 min)
 
+### Bonus 2.0: Pagina di Registrazione (PREREQUISITO)
+
+**Obiettivo**: Implementare una pagina di registrazione per nuovi utenti.
+
+**Task**:
+
+1. Il template `register.html` è già fornito
+2. Crea la route `/register` in `app.py`:
+
+```python
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Registrazione nuovo utente"""
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        name = request.form.get("name", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        role = request.form.get("role", "professore")
+
+        # Validazione
+        errors = []
+
+        if not username or len(username) < 3:
+            errors.append("Username deve avere almeno 3 caratteri")
+
+        if username in users_db:
+            errors.append("Username già esistente")
+
+        if not name:
+            errors.append("Nome completo obbligatorio")
+
+        if len(password) < 8:
+            errors.append("Password deve avere almeno 8 caratteri")
+
+        if password != confirm_password:
+            errors.append("Le password non coincidono")
+
+        if role not in ["professore", "segreteria"]:
+            errors.append("Ruolo non valido")
+
+        if errors:
+            for error in errors:
+                flash(error, "danger")
+            return render_template("register.html", form=request.form)
+
+        # Crea nuovo utente
+        users_db[username] = {
+            "password": generate_password_hash(password),
+            "name": name,
+            "role": role
+        }
+
+        # Se hai implementato Bonus 2.1, salva su file
+        # save_users(users_db)
+
+        flash("Registrazione completata! Effettua il login.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("register.html", form=None)
+```
+
+3. Aggiungi link nel template `login.html` (alla fine, prima della chiusura del div auth-card):
+
+```html
+<div style="text-align: center; margin-top: 1rem;">
+    <p>
+        Non hai un account? <a href="{{ url_for('register') }}">Registrati</a>
+    </p>
+</div>
+```
+
+**Test**:
+
+-   Vai su `/register`
+-   Prova a registrarti con username esistente → Errore
+-   Prova password che non coincidono → Errore
+-   Registrati con dati validi → Successo e redirect a login
+-   Fai login con il nuovo account
+
+**Punti**: +15
+
+---
+
 ### Bonus 2.1: Persistenza Database Utenti su File JSON
 
-**Obiettivo**: Salvare gli utenti su file JSON invece di usare un dizionario in memoria.
+**Obiettivo**: Salvare gli utenti su file JSON invece di usare un dizionario in memoria (funziona bene con Bonus 2.0).
 
 **Task**:
 
