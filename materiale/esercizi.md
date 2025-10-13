@@ -1,5 +1,7 @@
 # Esercitazione 2 Pydantic
 
+Come DB utilizzare una lista o un dizionario locale
+
 ## Obiettivo
 
 Costruire una semplice API per la gestione di eventi, con i seguenti campi:
