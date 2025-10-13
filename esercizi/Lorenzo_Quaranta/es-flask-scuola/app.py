@@ -75,11 +75,35 @@ def show_single_student(student_id):
 
 @app.route("/students/<id>/grade/new",methods=["GET","POST"])
 def new_grade(id):
-        pass
+        if request.method=="POST":
+               materia=request.form["materia"]
+               valore=request.form["valore"]
+               data=request.form["data"]
+               db=load_db()
+               new_grade={}
+               new_grade["materia"]=materia
+               new_grade["valore"]=valore
+               new_grade["data"]=data
+               new_grade["stud_id"]=id
+               db["grade"].append(new_grade)
+               save_db(db)
 
 @app.route("/students/<id>/attendance/new",methods=["GET","POST"])
 def attendance(id):
-        pass
+        if request.method=="POST":
+               present=request.form["present"]
+               absent=request.form["absent"]
+               late=request.form["late"]
+               minutes_late=request.form["minutes_late"]
+               db=load_db()
+               new_attendance={}
+               new_attendance["present"]=present
+               new_attendance["absent"]=absent
+               new_attendance["late"]=late
+               new_attendance["minutes_late"]=minutes_late
+               new_attendance["stud_id"]=id
+               db["attendance"].append(new_attendance)
+               save_db(db)
 
 @app.route("/api/students")
 def load_students():
@@ -95,7 +119,19 @@ def upload_student_grade(id):
 
 @app.route("/api/students/<id>/attendance",methods=["POST"])
 def upload_student_attendance(id):
-        pass
+        request.form["present"]
+        absent=request.form["absent"]
+        late=request.form["late"]
+        minutes_late=request.form["minutes_late"]
+        db=load_db()
+        new_attendance={}
+        new_attendance["present"]=present
+        new_attendance["absent"]=absent
+        new_attendance["late"]=late
+        new_attendance["minutes_late"]=minutes_late
+        new_attendance["stud_id"]=id
+        db["attendance"].append(new_attendance)
+        save_db(db)
  
 if __name__=="__main__":
     app.run(debug=True)
