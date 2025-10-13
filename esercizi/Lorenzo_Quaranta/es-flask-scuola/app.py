@@ -115,20 +115,25 @@ def get_single_student(id):
 
 @app.route("/api/students/<id>/grades",methods=["POST"])
 def upload_student_grade(id):
-        pass
+        data=request.json
+        db=load_db()
+        new_grade={}
+        new_grade["materia"]=data["materia"]
+        new_grade["valore"]=data["valore"]
+        new_grade["data"]=data["data"]
+        new_grade["stud_id"]=id
+        db["grade"].append(new_grade)
+        save_db(db)
 
 @app.route("/api/students/<id>/attendance",methods=["POST"])
 def upload_student_attendance(id):
-        request.form["present"]
-        absent=request.form["absent"]
-        late=request.form["late"]
-        minutes_late=request.form["minutes_late"]
+        data=request.json
         db=load_db()
         new_attendance={}
-        new_attendance["present"]=present
-        new_attendance["absent"]=absent
-        new_attendance["late"]=late
-        new_attendance["minutes_late"]=minutes_late
+        new_attendance["present"]=data["present"]
+        new_attendance["absent"]=data["absent"]
+        new_attendance["late"]=data["late"]
+        new_attendance["minutes_late"]=data["minutes_late"]
         new_attendance["stud_id"]=id
         db["attendance"].append(new_attendance)
         save_db(db)
