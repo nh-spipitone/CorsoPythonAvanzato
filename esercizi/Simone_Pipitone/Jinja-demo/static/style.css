@@ -1,9 +1,50 @@
-
 /* static/style.css */
-body { font-family: system-ui, sans-serif; margin: 0; }
-.navbar { padding: 10px 16px; background: #f6f6f6; border-bottom: 1px solid #e7e7e7; }
-.navbar a { text-decoration: none; margin-right: 12px; }
-.container { padding: 16px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-.card { border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px; background: #fff; }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #efefef; }
+body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+}
+.navbar {
+    padding: 10px 16px;
+    background: #f6f6f6;
+    border-bottom: 1px solid #e7e7e7;
+}
+.navbar a {
+    text-decoration: none;
+    margin-right: 12px;
+}
+.container {
+    padding: 16px;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+.card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #efefef;
+}
+.badge.admin {
+    background: #ffdddd;
+    color: #a00;
+}
+.badge-danger {
+    background: #ffe0e0;
+    color: #c00;
+}
+.badge-success {
+    background: #ddffdd;
+    color: #0a0;
+}
+.badge-muted {
+    background: #f0f0f0;
+    color: #666;
+}
