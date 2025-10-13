@@ -35,8 +35,8 @@ def show_dashboard():
         pass
 
 @app.route("/students")
-def get_students():
-        pass
+def show_students():
+        db= load_db()
 
 @app.route("/students/<int:student_id>")
 def show_single_student(student_id):
@@ -65,5 +65,6 @@ def upload_student_grade(id):
 @app.route("/api/students/<id>/attendance",methods=["POST"])
 def upload_student_attendance(id):
         pass
+ 
 if __name__=="__main__":
     app.run(debug=True)
