@@ -2,3 +2,9 @@
 *.egg-info
 _pycache_/
 *.DS_Store
+esercizi/Simone_Pipitone/flask_school_site/db.json
+esercizi/roberto_laporta/esercizio_guestbook/__pycache__/app.cpython-311.pyc
+.gitignore
+tests/__pycache__/
+Utils/tests/__pycache__/
+.env

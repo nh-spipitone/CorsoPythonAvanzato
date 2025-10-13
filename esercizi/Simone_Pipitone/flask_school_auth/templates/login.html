@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Registro Scolastico{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>🔐 Login</h2>
+    <p class="auth-subtitle">Accedi al registro scolastico</p>
+
+    <form method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          required 
+          autofocus
+          placeholder="Inserisci il tuo username"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required
+          placeholder="Inserisci la tua password"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+    </form>
+
+    <div class="auth-footer">
+      <p><strong>Credenziali di test:</strong></p>
+      <ul>
+        <li>Username: <code>prof.rossi</code> - Password: <code>prof123</code></li>
+        <li>Username: <code>segreteria</code> - Password: <code>segreteria123</code></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
