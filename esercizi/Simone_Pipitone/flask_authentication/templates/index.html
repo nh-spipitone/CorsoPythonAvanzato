@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Flask Authentication{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Benvenuto nell'App di Autenticazione Flask</h1>
+    
+    {% if current_user.is_authenticated %}
+        <p class="lead">Ciao, {{ current_user.name }}! Sei già autenticato.</p>
+        <div class="button-group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Vai alla Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    {% else %}
+        <p class="lead">Questa è una semplice applicazione di autenticazione con Flask-Login.</p>
+        <div class="button-group">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary">Registrati</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="features">
+    <h2>Funzionalità</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>🔐 Login Sicuro</h3>
+            <p>Sistema di autenticazione con password hashate</p>
+        </div>
+        <div class="feature-card">
+            <h3>👤 Registrazione</h3>
+            <p>Crea il tuo account facilmente</p>
+        </div>
+        <div class="feature-card">
+            <h3>🛡️ Protezione Route</h3>
+            <p>Pagine protette accessibili solo agli utenti autenticati</p>
+        </div>
+        <div class="feature-card">
+            <h3>💾 Remember Me</h3>
+            <p>Opzione per rimanere connesso</p>
+        </div>
+    </div>
+</div>
+
+{% if not current_user.is_authenticated %}
+<div class="demo-credentials">
+    <h3>Credenziali Demo</h3>
+    <div class="credentials-list">
+        <div class="credential-item">
+            <strong>Admin:</strong> username: <code>admin</code> | password: <code>admin123</code>
+        </div>
+        <div class="credential-item">
+            <strong>User:</strong> username: <code>user</code> | password: <code>user123</code>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

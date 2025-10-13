@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Flask Authentication{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Dashboard</h1>
+    <p class="lead">Benvenuto nella tua area riservata, {{ current_user.name }}!</p>
+    
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3>👤 Il Tuo Profilo</h3>
+            <p>Visualizza e gestisci le tue informazioni personali</p>
+            <a href="{{ url_for('profile') }}" class="btn btn-primary">Vai al Profilo</a>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>📊 Statistiche</h3>
+            <p>Username: <strong>{{ current_user.id }}</strong></p>
+            <p>Nome: <strong>{{ current_user.name }}</strong></p>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>🔒 Sicurezza</h3>
+            <p>Questa pagina è protetta e accessibile solo agli utenti autenticati</p>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>🚪 Logout</h3>
+            <p>Esci dal tuo account in modo sicuro</p>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
