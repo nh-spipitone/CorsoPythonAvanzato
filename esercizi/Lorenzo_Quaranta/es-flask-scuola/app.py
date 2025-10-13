@@ -63,11 +63,11 @@ def get_student(id):
 
 @app.route("/")
 def show_dashboard():
-        pass
+         db= load_db()
 
 @app.route("/students")
 def show_students():
-        db= load_db()
+        studenti= load_db()["students"]
 
 @app.route("/students/<int:student_id>")
 def show_single_student(student_id):
