@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Registrazione - Registro Scolastico{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>📝 Registrazione</h2>
+    <p class="auth-subtitle">Crea un nuovo account</p>
+
+    <form method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="username">Username *</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          value="{{ form.username if form else '' }}"
+          required 
+          autofocus
+          placeholder="Scegli un username"
+          minlength="3"
+        >
+        <small>Almeno 3 caratteri, solo lettere, numeri e underscore</small>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Nome Completo *</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          value="{{ form.name if form else '' }}"
+          required
+          placeholder="Es: Mario Rossi"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required
+          minlength="8"
+          placeholder="Crea una password sicura"
+        >
+        <small>Almeno 8 caratteri, con maiuscole, numeri e caratteri speciali</small>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Conferma Password *</label>
+        <input 
+          type="password" 
+          id="confirm_password" 
+          name="confirm_password" 
+          required
+          placeholder="Ripeti la password"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="role">Ruolo</label>
+        <select id="role" name="role">
+          <option value="professore" {% if form and form.role == 'professore' %}selected{% endif %}>
+            👨‍🏫 Professore
+          </option>
+          <option value="segreteria" {% if form and form.role == 'segreteria' %}selected{% endif %}>
+            📋 Segreteria
+          </option>
+        </select>
+        <small>Seleziona il tuo ruolo nel sistema</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">
+        Registrati
+      </button>
+    </form>
+
+    <div class="auth-footer" style="margin-top: 1.5rem; text-align: center;">
+      <p>Hai già un account? <a href="{{ url_for('login') }}" style="color: var(--primary); font-weight: 600;">Accedi qui</a></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Stili aggiuntivi specifici per la registrazione */
+  .auth-form select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  
+  .auth-form select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .auth-form select option {
+    padding: 0.5rem;
+  }
+</style>
+{% endblock %}
