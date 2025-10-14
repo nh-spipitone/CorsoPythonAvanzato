@@ -120,12 +120,13 @@ def login_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = session["token"]
+        
 
             
-        if not token:
+        if "token" not in session:
             flash("errore: È necessario fare login.")
             return redirect("login")
+        token = session["token"]
         username=verify_token(token)
         if not username:
             flash("È necessario necessario fare di nuovo login.")
@@ -245,7 +246,7 @@ def logout():
 @login_required  # <-- DECOMMENTA
 def dashboard(current_user=None):
     """Dashboard - area riservata."""
-    return render_template("bearer_lab/login.html",current_user=current_user)
+    return render_template("bearer_lab/dashboard.html",current_user=current_user)
 
 
 # TODO 13: Implementa route /profile
@@ -292,7 +293,9 @@ def api_protected(current_user=None):
 @api_token_required  # <-- DECOMMENTA
 def api_users(current_user=None):
     """API - lista utenti."""
-    return jsonify(USERS.keys())
+    user_enum=enumerate(USERS.keys(),1)
+    user_dict=dict((i,j) for i,j in user_enum)
+    return jsonify(user_dict)
     pass  # <-- IMPLEMENTA QUI
 
 
@@ -306,9 +309,10 @@ def api_users(current_user=None):
 # Mostra tutti i token attivi (template: bearer_lab/active_tokens.html)
 # ATTENZIONE: Solo per debug, non usare in produzione!
 @app.route("/admin/tokens")
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def admin_tokens(current_user=None):
     """Debug - mostra token attivi."""
+    return jsonify(ACTIVE_TOKENS)
     pass  # <-- IMPLEMENTA QUI
 
 
