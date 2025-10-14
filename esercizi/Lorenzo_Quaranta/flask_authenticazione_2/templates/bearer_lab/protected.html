@@ -1,0 +1,54 @@
+{% extends "bearer_lab/base.html" %}
+
+{% block title %}Protected API - Bearer Token Lab{% endblock %}
+
+{% block content %}
+<h2>🔒 API Protetta</h2>
+
+<div class="alert alert-success">
+    <strong>✅ Accesso Consentito!</strong>
+    <br>
+    Questa pagina mostra il risultato di una chiamata API protetta.
+</div>
+
+<div class="card">
+    <h3>📡 Risposta API</h3>
+    <div class="token-display">
+{
+    "message": "Benvenuto {{ username }}!",
+    "user": "{{ username }}",
+    "data": "Questi sono dati protetti accessibili solo con un token valido",
+    "timestamp": "{{ timestamp }}"
+}
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <strong>💡 Come funziona:</strong>
+    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li>L'endpoint <code>/api/protected</code> è protetto dal decorator <code>@api_token_required</code></li>
+        <li>Il token viene recuperato dalla session Flask</li>
+        <li>Se il token è valido, la richiesta viene autorizzata</li>
+        <li>L'API restituisce dati in formato JSON</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3>🧪 Test con curl</h3>
+    <p>Per testare questo endpoint direttamente con curl:</p>
+    <div class="token-display">
+# Prima fai login e ottieni il token
+curl -X POST http://localhost:5000/api/login \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin","password":"admin123"}'
+
+# Poi usa il token per accedere
+curl http://localhost:5000/api/protected \
+     -H "Authorization: Bearer YOUR_TOKEN_HERE"
+    </div>
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="/dashboard" class="btn btn-primary">← Torna alla Dashboard</a>
+</div>
+{% endblock %}
