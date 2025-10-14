@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Studenti - Registro Scolastico{% endblock %}
+
+{% block content %}
+<header class="header">
+  <h1>👥 Lista Studenti</h1>
+  <p class="subtitle">Gestisci gli studenti del registro</p>
+</header>
+
+<section class="students-list">
+  {% if students %}
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Classe</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td>{{ student.id }}</td>
+            <td>{{ student.name }}</td>
+            <td><span class="badge">{{ student.class }}</span></td>
+            <td>
+              <a href="{{ url_for('student_detail', student_id=student.id) }}" class="btn btn-small">Dettagli</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>📋 Nessuno studente presente nel registro</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
