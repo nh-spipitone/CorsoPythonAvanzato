@@ -42,7 +42,7 @@ app.config["SECRET_KEY"] = secrets.token_hex(16) # <-- IMPLEMENTA QUI
 
 # TODO 2: Crea un dizionario USERS con almeno 3 utenti di test
 # Formato: {"username": "password"}
-USERS = [{"Mastella":"chofamiglia","Jimi_Hendrix":"voodoochild","Satana":"666"}]  # <-- IMPLEMENTA QUI
+USERS = {"Mastella":"chofamiglia","Jimi_Hendrix":"voodoochild","Satana":"666"}  # <-- IMPLEMENTA QUI
 
 # TODO 3: Crea dizionario ACTIVE_TOKENS per memorizzare i token
 # Struttura: {token: {"username": str, "expires": datetime, "created": datetime}}
@@ -245,7 +245,7 @@ def logout():
 @login_required  # <-- DECOMMENTA
 def dashboard(current_user=None):
     """Dashboard - area riservata."""
-    render_template("bearer_lab/login.html",current_user=current_user)
+    return render_template("bearer_lab/login.html",current_user=current_user)
 
 
 # TODO 13: Implementa route /profile
@@ -257,7 +257,12 @@ def dashboard(current_user=None):
 def profile(current_user=None):
     """Profilo utente - mostra info token."""
     token=session["token"]
-    render_template("bearer_lab/token_info.html",token=ACTIVE_TOKENS[token])
+    token_data=ACTIVE_TOKENS[token]
+    username=token_data["username"]
+    created=token_data["created"]
+    expires=token_data["expires"]
+    remaining=expires-datetime.now()
+    return render_template("bearer_lab/token_info.html",username=username,created=created,expires=expires,remaining=remaining)
 
 
 # =============================================================================
@@ -269,19 +274,25 @@ def profile(current_user=None):
 # Usa @api_token_required
 # Restituisci JSON con messaggio di benvenuto e current_user
 @app.route("/api/protected")
-# @api_token_required  # <-- DECOMMENTA
+@api_token_required  # <-- DECOMMENTA
 def api_protected(current_user=None):
     """API protetta - richiede token valido."""
-    pass  # <-- IMPLEMENTA QUI
+    return(jsonify(
+        {
+            "message":"Benvenuto "+ current_user
+        }
+    ))
+    
 
 
 # TODO 15: Implementa route /api/users [GET]
 # Usa @api_token_required
 # Restituisci JSON con lista di tutti gli username (NO password!)
 @app.route("/api/users")
-# @api_token_required  # <-- DECOMMENTA
+@api_token_required  # <-- DECOMMENTA
 def api_users(current_user=None):
     """API - lista utenti."""
+    return jsonify(USERS.keys())
     pass  # <-- IMPLEMENTA QUI
 
 
