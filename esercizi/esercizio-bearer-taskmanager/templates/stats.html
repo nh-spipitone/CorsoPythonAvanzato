@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Statistiche - Task Manager{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">📊 Le Tue Statistiche</h1>
+
+<!-- Statistiche Generali -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Totale Task</h3>
+        <div class="stat-value">{{ stats.total }}</div>
+    </div>
+    <div class="stat-card success">
+        <h3>Completati</h3>
+        <div class="stat-value">{{ stats.completed }}</div>
+    </div>
+    <div class="stat-card warning">
+        <h3>Da Fare</h3>
+        <div class="stat-value">{{ stats.todo }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Percentuale Completamento</h3>
+        <div class="stat-value">
+            {% if stats.total > 0 %}
+                {{ ((stats.completed / stats.total) * 100) | round(1) }}%
+            {% else %}
+                0%
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Task Recenti -->
+{% if recent_tasks %}
+<div class="card">
+    <h2>🕐 Task Recenti (ultimi 5)</h2>
+    <ul class="task-list">
+        {% for task in recent_tasks %}
+            <li class="task-item {% if task.completed %}completed{% endif %}">
+                <div class="task-content">
+                    <div class="task-title">
+                        {% if task.completed %}✓{% endif %} {{ task.title }}
+                    </div>
+                    <div class="task-meta">
+                        Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                </div>
+                <div>
+                    {% if task.completed %}
+                        <span class="badge badge-success">Completato</span>
+                    {% else %}
+                        <span class="badge badge-warning">Da Fare</span>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Task Più Vecchi -->
+{% if oldest_incomplete %}
+<div class="card">
+    <h2>⏰ Task Da Fare Più Vecchi</h2>
+    <ul class="task-list">
+        {% for task in oldest_incomplete %}
+            <li class="task-item">
+                <div class="task-content">
+                    <div class="task-title">{{ task.title }}</div>
+                    <div class="task-meta">
+                        Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <a href="/task/{{ task.id }}/edit" class="btn btn-sm btn-primary">Completa Ora →</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Completamenti Recenti -->
+{% if recently_completed %}
+<div class="card">
+    <h2>✅ Completati di Recente</h2>
+    <ul class="task-list">
+        {% for task in recently_completed %}
+            <li class="task-item completed">
+                <div class="task-content">
+                    <div class="task-title">✓ {{ task.title }}</div>
+                    <div class="task-meta">
+                        Completato: {{ task.completed_at.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Nessun Task -->
+{% if stats.total == 0 %}
+<div class="empty-state">
+    <div class="empty-state-icon">📊</div>
+    <h2>Nessuna statistica disponibile</h2>
+    <p>Crea il tuo primo task per iniziare a tracciare le tue attività!</p>
+    <a href="/task/new" class="btn btn-primary" style="margin-top: 1rem;">Crea il primo task</a>
+</div>
+{% endif %}
+
+<div style="margin-top: 2rem; text-align: center;">
+    <a href="/dashboard" class="btn btn-secondary">← Torna alla Dashboard</a>
+</div>
+{% endblock %}
