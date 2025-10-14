@@ -120,8 +120,19 @@ def login_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        # TODO 8a: Controlla se c'è un token nella session
-        pass  # <-- IMPLEMENTA QUI
+        token = session["token"]
+
+            
+        if not token:
+            flash("errore: È necessario fare login.")
+            return redirect("login")
+        username=verify_token(token)
+        if not username:
+            flash("È necessario necessario fare di nuovo login.")
+            del session["token"]
+            return redirect("login")
+        # Passa l'username alla funzione
+        return f(current_user=username, *args, **kwargs)
 
     return decorated
 
@@ -138,8 +149,27 @@ def api_token_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        # TODO 9a: Ottieni token dalla session
-        pass  # <-- IMPLEMENTA QUI
+        token = session["token"]
+            
+        if not token:
+            return (jsonify(
+                    {
+                        "error":"Token non presente",
+                        "message":"È necessario fare login per ottenere un token"
+                    }
+                ),
+                401)
+        username=verify_token(token)
+        if not username:
+            return (jsonify(
+                    {
+                        "error":"Token non valido o scaduto",
+                        "message":"Verifica token fallita, necessario fare di nuovo login"
+                    }
+                ),
+                401)
+        # Passa l'username alla funzione
+        return f(current_user=username, *args, **kwargs)
 
     return decorated
 
@@ -173,7 +203,18 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Login - form HTML."""
-    pass  # <-- IMPLEMENTA QUI
+    if request.method=="POST":
+        form=request.form
+        username=form["username"]
+        password=form["password"]
+        if username in USERS.keys():
+            if password in USERS.values():
+                session['token']=create_token(username)
+                return redirect("dashboard")
+        flash("credenziali non valide")
+    #arriva qui se il metodo è GET oppure se il POST non trova credenziali valide
+    return render_template("bearer_lab/login.html")
+    
 
 
 # TODO 11: Implementa route /logout
@@ -185,7 +226,11 @@ def login():
 @app.route("/logout")
 def logout():
     """Logout - invalida token e cancella session."""
-    pass  # <-- IMPLEMENTA QUI
+    token=session['token']
+    if token:
+        del ACTIVE_TOKENS[token]
+        flash("sei uscito")
+    redirect("home")
 
 
 # =============================================================================
@@ -197,10 +242,10 @@ def logout():
 # Usa @login_required
 # Mostra template bearer_lab/dashboard.html con current_user
 @app.route("/dashboard")
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def dashboard(current_user=None):
     """Dashboard - area riservata."""
-    pass  # <-- IMPLEMENTA QUI
+    render_template("bearer_lab/login.html",current_user=current_user)
 
 
 # TODO 13: Implementa route /profile
@@ -208,10 +253,11 @@ def dashboard(current_user=None):
 # Mostra info utente e token (template: bearer_lab/token_info.html)
 # Passa: username, created, expires, time_remaining
 @app.route("/profile")
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def profile(current_user=None):
     """Profilo utente - mostra info token."""
-    pass  # <-- IMPLEMENTA QUI
+    token=session["token"]
+    render_template("bearer_lab/token_info.html",token=ACTIVE_TOKENS[token])
 
 
 # =============================================================================
