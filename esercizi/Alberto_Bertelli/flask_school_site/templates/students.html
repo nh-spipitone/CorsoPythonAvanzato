@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studenti</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Studenti</h1>
+      <a class="btn" href="{{ url_for('index') }}">← Dashboard</a>
+    </header>
+
+    {% if students %}
+      <ul class="list">
+        {% for s in students %}
+          <li class="card">
+            <div class="row">
+              <div>
+                <strong>#{{ s.id }}</strong> — {{ s.name }} <span class="muted">(Classe {{ s.class }})</span>
+              </div>
+              <div>
+                <a class="btn" href="{{ url_for('student_detail', student_id=s.id) }}">Dettaglio</a>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Nessuno studente.</p>
+    {% endif %}
+  </main>
+</body>
+</html>
