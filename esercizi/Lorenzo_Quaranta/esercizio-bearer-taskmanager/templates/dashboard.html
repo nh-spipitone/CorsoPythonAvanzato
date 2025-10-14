@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Task Manager{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1>📊 Dashboard di {{ current_user }}</h1>
+    <a href="/task/new" class="btn btn-primary">➕ Nuovo Task</a>
+</div>
+
+<!-- Statistiche -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Totale Task</h3>
+        <div class="stat-value">{{ stats.total }}</div>
+    </div>
+    <div class="stat-card success">
+        <h3>Completati</h3>
+        <div class="stat-value">{{ stats.completed }}</div>
+    </div>
+    <div class="stat-card warning">
+        <h3>Da Fare</h3>
+        <div class="stat-value">{{ stats.todo }}</div>
+    </div>
+</div>
+
+<!-- Filtri -->
+<div class="filters">
+    <a href="/dashboard" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">
+        Tutti ({{ stats.total }})
+    </a>
+    <a href="/dashboard?filter=todo" class="filter-btn {% if current_filter == 'todo' %}active{% endif %}">
+        Da Fare ({{ stats.todo }})
+    </a>
+    <a href="/dashboard?filter=completed" class="filter-btn {% if current_filter == 'completed' %}active{% endif %}">
+        Completati ({{ stats.completed }})
+    </a>
+</div>
+
+<!-- Lista Task -->
+{% if tasks %}
+    <ul class="task-list">
+        {% for task in tasks %}
+            <li class="task-item {% if task.completed %}completed{% endif %}">
+                <div class="task-content">
+                    <div class="task-title">
+                        {% if task.completed %}✓{% endif %} {{ task.title }}
+                    </div>
+                    {% if task.description %}
+                        <div class="task-description">{{ task.description }}</div>
+                    {% endif %}
+                    <div class="task-meta">
+                        Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% if task.completed and task.completed_at %}
+                            • Completato: {{ task.completed_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <form method="POST" action="/task/{{ task.id }}/toggle" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-{% if task.completed %}secondary{% else %}success{% endif %}">
+                            {% if task.completed %}↶ Riapri{% else %}✓ Completa{% endif %}
+                        </button>
+                    </form>
+                    <a href="/task/{{ task.id }}/edit" class="btn btn-sm btn-secondary">✎ Modifica</a>
+                    <form method="POST" action="/task/{{ task.id }}/delete" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sicuro di voler eliminare questo task?')">
+                            ✗ Elimina
+                        </button>
+                    </form>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h2>Nessun task trovato</h2>
+        <p>
+            {% if current_filter == 'completed' %}
+                Non hai ancora completato nessun task.
+            {% elif current_filter == 'todo' %}
+                Ottimo! Non hai task da fare.
+            {% else %}
+                Inizia creando il tuo primo task!
+            {% endif %}
+        </p>
+        {% if current_filter == 'all' %}
+            <a href="/task/new" class="btn btn-primary" style="margin-top: 1rem;">Crea il primo task</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
