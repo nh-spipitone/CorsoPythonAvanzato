@@ -1,0 +1,74 @@
+{% extends "bearer_lab/base.html" %}
+
+{% block title %}Profile - Bearer Token Lab{% endblock %}
+
+{% block content %}
+<h2>👤 Profile</h2>
+
+<div class="card">
+    <h3>Informazioni Utente</h3>
+    <div class="info-row">
+        <span class="info-label">Username</span>
+        <span class="info-value">{{ username }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Metodo Autenticazione</span>
+        <span class="info-value">Bearer Token</span>
+    </div>
+</div>
+
+<div class="card">
+    <h3>🔑 Informazioni Token</h3>
+    
+    <div class="info-row">
+        <span class="info-label">Token Creato</span>
+        <span class="info-value">{{ created }}</span>
+    </div>
+    
+    <div class="info-row">
+        <span class="info-label">Token Scade</span>
+        <span class="info-value">{{ expires }}</span>
+    </div>
+    
+    <div class="info-row">
+        <span class="info-label">Tempo Rimanente</span>
+        <span class="info-value">{{ time_remaining }}</span>
+    </div>
+    
+    <div class="info-row">
+        <span class="info-label">Stato</span>
+        <span class="info-value">
+            <span class="badge badge-success">✓ Valido</span>
+        </span>
+    </div>
+</div>
+
+<div class="card">
+    <h3>🔐 Il Tuo Token</h3>
+    <p style="margin-bottom: 1rem;">
+        Questo è il tuo token Bearer. In una vera applicazione, questo sarebbe usato
+        nell'header <code>Authorization: Bearer &lt;token&gt;</code> per le richieste API.
+    </p>
+    <div class="token-display">
+        {{ token }}
+    </div>
+    <p style="margin-top: 1rem; color: #666; font-size: 0.875rem;">
+        ⚠️ Non condividere mai il tuo token! Chiunque abbia accesso al token
+        può impersonarti fino alla sua scadenza.
+    </p>
+</div>
+
+<div class="alert alert-info">
+    <strong>💡 Come viene usato:</strong>
+    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li>Il token è salvato nella session Flask</li>
+        <li>Viene verificato ad ogni richiesta alle pagine protette</li>
+        <li>Viene controllata anche la scadenza</li>
+        <li>Se scade, devi rifare il login</li>
+    </ul>
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="/dashboard" class="btn btn-primary">← Torna alla Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "bearer_lab/base.html" %}
+
+{% block title %}Login - Bearer Token Lab{% endblock %}
+
+{% block content %}
+<h2>🔑 Login</h2>
+
+<div class="card">
+    <h3>Accedi al Sistema</h3>
+    <p style="margin-bottom: 1.5rem;">
+        Inserisci le tue credenziali per ottenere un token di autenticazione.
+    </p>
+    
+    <form method="POST" action="/login">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>📝 Credenziali di Test</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Ruolo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>admin</code></td>
+                <td><code>admin123</code></td>
+                <td>Administrator</td>
+            </tr>
+            <tr>
+                <td><code>user</code></td>
+                <td><code>user456</code></td>
+                <td>User</td>
+            </tr>
+            <tr>
+                <td><code>test</code></td>
+                <td><code>test789</code></td>
+                <td>Test User</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="alert alert-info" style="margin-top: 1rem;">
+    <strong>ℹ️ Come funziona:</strong>
+    <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li>Inserisci username e password</li>
+        <li>Il server verifica le credenziali</li>
+        <li>Se valide, viene generato un token Bearer</li>
+        <li>Il token viene salvato nella session Flask</li>
+        <li>Potrai accedere alle risorse protette per 15 minuti</li>
+    </ol>
+</div>
+{% endblock %}
