@@ -1,0 +1,53 @@
+{% extends "bearer_lab/base.html" %}
+
+{% block title %}Dashboard - Bearer Token Lab{% endblock %}
+
+{% block content %}
+<h2>📊 Dashboard</h2>
+
+<div class="alert alert-success">
+    <strong>✅ Benvenuto, {{ current_user }}!</strong>
+    <br>
+    Sei autenticato con un token Bearer valido.
+</div>
+
+<div class="card">
+    <h3>🎯 Area Riservata</h3>
+    <p>
+        Questa è una pagina protetta accessibile solo con un token valido.
+        Il tuo token è salvato nella session Flask e viene verificato ad ogni richiesta.
+    </p>
+</div>
+
+<div class="card">
+    <h3>📈 Statistiche</h3>
+    <div class="info-row">
+        <span class="info-label">Utente</span>
+        <span class="info-value">{{ current_user }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Metodo Autenticazione</span>
+        <span class="info-value">Bearer Token</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Storage Token</span>
+        <span class="info-value">Flask Session</span>
+    </div>
+</div>
+
+<div class="card">
+    <h3>🔗 Azioni Disponibili</h3>
+    <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+        <li><a href="/profile">Vedi Info Token</a> - Dettagli sul tuo token</li>
+        <li><a href="/api/protected">Testa API Protetta</a> - Endpoint JSON protetto</li>
+        <li><a href="/api/users">Lista Utenti</a> - Ottieni lista via API</li>
+        <li><a href="/admin/tokens">Token Attivi</a> - Vedi tutti i token (debug)</li>
+    </ul>
+</div>
+
+<div class="alert alert-info">
+    <strong>💡 Suggerimento:</strong>
+    Il token viene automaticamente incluso nelle richieste perché è salvato nella session.
+    Quando il token scade (dopo 15 minuti), verrai reindirizzato al login.
+</div>
+{% endblock %}
