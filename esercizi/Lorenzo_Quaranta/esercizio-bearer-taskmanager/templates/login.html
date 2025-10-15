@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Task Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 2rem auto;">
+    <h1 style="margin-bottom: 2rem; text-align: center;">🔐 Login</h1>
+    
+    <div class="card">
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required 
+                    autofocus
+                    placeholder="Inserisci il tuo username"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required
+                    placeholder="Inserisci la tua password"
+                >
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Accedi
+            </button>
+        </form>
+    </div>
+    
+    <p style="text-align: center; margin-top: 1.5rem; color: #6b7280;">
+        Non hai un account? 
+        <a href="/register" style="color: #4f46e5; font-weight: 600;">Registrati</a>
+    </p>
+</div>
+{% endblock %}

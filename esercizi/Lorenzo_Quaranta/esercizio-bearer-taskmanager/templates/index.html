@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Task Manager{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>📋 Task Manager</h1>
+    <p>Gestisci i tuoi task in modo semplice ed efficace</p>
+    
+    {% if is_logged_in %}
+        <a href="/dashboard" class="btn btn-primary">Vai alla Dashboard →</a>
+    {% else %}
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+            <a href="/register" class="btn btn-primary">Inizia Ora</a>
+            <a href="/login" class="btn btn-secondary">Ho già un account</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>✨ Funzionalità</h2>
+    <ul style="list-style: none; padding: 0;">
+        <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+            <strong>✓ Gestione Task</strong> - Crea, modifica ed elimina i tuoi task
+        </li>
+        <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+            <strong>✓ Tracciamento Progresso</strong> - Segna i task come completati
+        </li>
+        <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+            <strong>✓ Filtri Intelligenti</strong> - Visualizza solo ciò che ti serve
+        </li>
+        <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+            <strong>✓ Statistiche</strong> - Monitora la tua produttività
+        </li>
+        <li style="padding: 0.75rem 0;">
+            <strong>✓ Autenticazione Sicura</strong> - I tuoi dati sono protetti con Bearer Token
+        </li>
+    </ul>
+</div>
+
+{% if not is_logged_in %}
+<div class="card">
+    <h2>🚀 Come Iniziare</h2>
+    <ol style="margin-left: 1.5rem; line-height: 2;">
+        <li>Crea un account gratuito</li>
+        <li>Fai login per ottenere il tuo token di accesso</li>
+        <li>Inizia a creare i tuoi task</li>
+        <li>Organizza e monitora il tuo lavoro</li>
+    </ol>
+</div>
+{% endif %}
+{% endblock %}

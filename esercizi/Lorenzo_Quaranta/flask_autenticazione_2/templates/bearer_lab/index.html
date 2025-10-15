@@ -1,0 +1,105 @@
+{% extends "bearer_lab/base.html" %}
+
+{% block title %}Home - Bearer Token Lab{% endblock %}
+
+{% block content %}
+<h2>🔐 Benvenuto al Bearer Token Lab</h2>
+
+<div class="card">
+    <h3>Cos'è Bearer Token Authentication?</h3>
+    <p>
+        Il <strong>Bearer Token</strong> è un metodo di autenticazione stateless dove:
+    </p>
+    <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+        <li>L'utente fa login e riceve un token</li>
+        <li>Il token viene salvato (in questo caso nella session Flask)</li>
+        <li>Il token viene usato per accedere a risorse protette</li>
+        <li>Il token ha una scadenza (in questo lab: 15 minuti)</li>
+    </ul>
+</div>
+
+{% if is_logged_in %}
+    <div class="alert alert-success">
+        <strong>✅ Sei connesso come:</strong> {{ current_user }}
+        <br><br>
+        <a href="/dashboard" class="btn btn-primary">Vai alla Dashboard →</a>
+    </div>
+    
+    <div class="card">
+        <h3>🎯 Cosa puoi fare:</h3>
+        <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+            <li><a href="/dashboard">Dashboard</a> - Area riservata</li>
+            <li><a href="/profile">Profile</a> - Vedi info sul tuo token</li>
+            <li><a href="/admin/tokens">Tokens</a> - Vedi tutti i token attivi (debug)</li>
+            <li><a href="/api/protected">/api/protected</a> - Endpoint API protetto</li>
+            <li><a href="/api/users">/api/users</a> - Lista utenti (API)</li>
+        </ul>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <strong>ℹ️ Non sei autenticato.</strong>
+        <br><br>
+        <a href="/login" class="btn btn-primary">Fai Login →</a>
+    </div>
+    
+    <div class="card">
+        <h3>📝 Credenziali di Test</h3>
+        <p>Per testare l'applicazione, usa queste credenziali:</p>
+        <ul style="margin-left: 1.5rem; margin-top: 1rem; font-family: monospace;">
+            <li><strong>admin</strong> / admin123</li>
+            <li><strong>user</strong> / user456</li>
+            <li><strong>test</strong> / test789</li>
+        </ul>
+    </div>
+{% endif %}
+
+<div class="card">
+    <h3>🧪 Endpoint Disponibili</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>Tipo</th>
+                <th>Descrizione</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>/</code></td>
+                <td><span class="badge badge-success">Pubblico</span></td>
+                <td>Homepage</td>
+            </tr>
+            <tr>
+                <td><code>/login</code></td>
+                <td><span class="badge badge-success">Pubblico</span></td>
+                <td>Form di login</td>
+            </tr>
+            <tr>
+                <td><code>/dashboard</code></td>
+                <td><span class="badge badge-warning">Protetto</span></td>
+                <td>Dashboard utente</td>
+            </tr>
+            <tr>
+                <td><code>/profile</code></td>
+                <td><span class="badge badge-warning">Protetto</span></td>
+                <td>Info token</td>
+            </tr>
+            <tr>
+                <td><code>/api/protected</code></td>
+                <td><span class="badge badge-warning">API</span></td>
+                <td>Endpoint API protetto</td>
+            </tr>
+            <tr>
+                <td><code>/api/users</code></td>
+                <td><span class="badge badge-warning">API</span></td>
+                <td>Lista utenti</td>
+            </tr>
+            <tr>
+                <td><code>/admin/tokens</code></td>
+                <td><span class="badge badge-danger">Debug</span></td>
+                <td>Token attivi (solo debug)</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
