@@ -231,7 +231,7 @@ def logout():
     if token:
         del ACTIVE_TOKENS[token]
         flash("sei uscito")
-    redirect("home")
+    return redirect("home")
 
 
 # =============================================================================

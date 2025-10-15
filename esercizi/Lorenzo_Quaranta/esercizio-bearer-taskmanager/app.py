@@ -201,8 +201,10 @@ def update_task(task_id, username, title=None, description=None, completed=None)
     if not task:
         return False
     else:
-        task["title"]=title
-        task["description"]=description
+        if title:
+            task["title"]=title
+        if description!=None:
+            task["description"]=description
         if completed==True:
             new_task["completed"]=True
             new_task["completed_at"]=datetime.now()
@@ -236,9 +238,9 @@ def get_user_stats(username):
     completed_user_tasks=len(get_user_tasks(username,filter_completed=True))
     pending_user_tasks=len(get_user_tasks(username,filter_completed=False))
     stats={
-        "all_tasks": all_user_tasks,
-        "completed_tasks":completed_user_tasks,
-        "pending_tasks":pending_user_tasks
+        "total": all_user_tasks,
+        "completed":completed_user_tasks,
+        "todo":pending_user_tasks
     }
     return stats
 
@@ -275,7 +277,10 @@ def register():
     if request.method=="POST":
         form=request.form
         username=form["username"]
-        password=form["password"]    
+        password=form["password"]
+        if username and username not in USERS.keys():
+            if len(password)>6:
+                USERS[username]=password
         pass  # <-- IMPLEMENTA QUI
 
 
@@ -287,14 +292,23 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Login utente."""
-    # TODO 7a:
     # GET: mostra template 'login.html'
     # POST:
     #   1. Ottieni username e password da request.form
     #   2. Verifica credenziali contro USERS
     #   3. Se valide: crea token, salva in session, redirect a dashboard
     #   4. Se non valide: flash errore, rimostra form
-    pass  # <-- IMPLEMENTA QUI
+    if request.method=="POST":
+        form=request.form
+        username=form["username"]
+        password=form["password"]
+        if username in USERS.keys():
+            if password in USERS.values():
+                session['token']=create_token(username)
+                return redirect("dashboard")
+        flash("credenziali non valide")
+    #arriva qui se il metodo è GET oppure se il POST non trova credenziali valide
+    return render_template("login.html")
 
 
 # =============================================================================
@@ -311,7 +325,11 @@ def logout():
     # 3. Rimuovi da session
     # 4. Flash messaggio
     # 5. Redirect a index
-    pass  # <-- IMPLEMENTA QUI
+    token=session['token']
+    if token:
+        del ACTIVE_TOKENS[token]
+        flash("sei uscito")
+    return redirect("index")
 
 
 # =============================================================================
@@ -320,17 +338,20 @@ def logout():
 
 
 @app.route("/dashboard")
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def dashboard(current_user=None):
     """Dashboard principale con lista task."""
-    # TODO 9a:
     # 1. Ottieni filtro da request.args.get('filter')
     #    (può essere 'completed', 'todo', o None per tutti)
     # 2. Converti filtro in booleano per get_user_tasks()
     # 3. Ottieni task con get_user_tasks()
     # 4. Ottieni stats con get_user_stats()
     # 5. Rendi template 'dashboard.html' con tasks, stats, filtro corrente
-    pass  # <-- IMPLEMENTA QUI
+    completed_filter=bool(request.args.get('filter'))
+    user_tasks=get_user_tasks(current_user,completed_filter)
+    user_stats=get_user_stats(current_user)
+
+    return render_template("dashboard.html",current_user=current_user,tasks=user_tasks,stats=user_stats)
 
 
 # =============================================================================
@@ -339,7 +360,7 @@ def dashboard(current_user=None):
 
 
 @app.route("/task/new", methods=["GET", "POST"])
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def new_task(current_user=None):
     """Crea nuovo task."""
     # TODO 10a:
@@ -350,7 +371,13 @@ def new_task(current_user=None):
     #   3. Crea task con create_task()
     #   4. Flash messaggio successo
     #   5. Redirect a dashboard
-    pass  # <-- IMPLEMENTA QUI
+    form=request.form
+    title=form["title"]
+    description=form["description"]
+    if title:
+        create_task(user=current_user,title=title,description=description)
+        flash("task creato")
+    return redirect("dashboard")
 
 
 # =============================================================================
@@ -359,10 +386,9 @@ def new_task(current_user=None):
 
 
 @app.route("/task/<int:task_id>/edit", methods=["GET", "POST"])
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def edit_task(task_id, current_user=None):
     """Modifica task esistente."""
-    # TODO 11a:
     # 1. Ottieni task con get_task_by_id()
     # 2. Se non esiste, flash errore e redirect a dashboard
     # GET: mostra template 'edit_task.html' con task
@@ -371,7 +397,21 @@ def edit_task(task_id, current_user=None):
     #   2. Aggiorna con update_task()
     #   3. Flash messaggio
     #   4. Redirect a dashboard
-    pass  # <-- IMPLEMENTA QUI
+    task=get_task_by_id(task_id,current_user)
+    if not task:
+        flash("task inesistente o non appartente a questo utente")
+        return redirect("dashboard")
+    if request.method=="POST":
+        form=request.form
+        title=form["title"]
+        description=form["description"]
+        update_task(task_id,current_user,title,description)
+        flash("task aggiornato")
+        return redirect("dashboard")
+    else:
+        return render_template("edit_task.html")
+
+    
 
 
 # =============================================================================
@@ -389,7 +429,13 @@ def toggle_task(task_id, current_user=None):
     # 3. Aggiorna con update_task()
     # 4. Flash messaggio
     # 5. Redirect a dashboard
-    pass  # <-- IMPLEMENTA QUI
+    task=get_task_by_id(task_id,current_user)
+    if not task:
+        flash("task inesistente o non appartente a questo utente")
+    else:
+        completed_new_value= not task["completed"]
+        update_task(task_id,current_user,completed=completed_new_value)
+    return redirect("dashboard")
 
 
 # =============================================================================
@@ -405,7 +451,12 @@ def delete_task_route(task_id, current_user=None):
     # 1. Elimina con delete_task()
     # 2. Flash messaggio appropriato
     # 3. Redirect a dashboard
-    pass  # <-- IMPLEMENTA QUI
+    deleted=delete_task(task_id,username=current_user)
+    if deleted:
+        flash("task cancellato con successo")
+    else:
+        flash("impossibile cancellare")
+    return redirect("dashboard")
 
 
 # =============================================================================
@@ -414,16 +465,34 @@ def delete_task_route(task_id, current_user=None):
 
 
 @app.route("/stats")
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def stats(current_user=None):
     """Pagina statistiche dettagliate."""
     # TODO 14a:
     # 1. Ottieni tutti i task dell'utente
-    # 2. Calcola statistiche avanzate:
-    #    - Task per giorno della settimana
-    #    - Task completati oggi
-    #    - Task più vecchio non completato
+    # 2. Calcola statistiche avanzate
+    
     # 3. Rendi template 'stats.html' con dati
+    all_user_tasks=len(get_user_tasks(username))
+    completed_user_tasks=len(get_user_tasks(username,filter_completed=True))
+    pending_user_tasks=len(get_user_tasks(username,filter_completed=False))
+    stats=get_user_stats(current_user)
+    oldest_incomplete_task=stats["todo"][0]
+
+    #    - Task più vecchio non completato
+    for incomplete_task in pending_user_tasks:
+        if oldest_incomplete_task["created_at"]>incomplete_task["created_at"]:
+            oldest_incomplete_task=incomplete_task
+
+    #    - Task completati oggi
+    tasks_completed_today=[]
+    for complete_task in completed_user_tasks:
+        timestamp=datetime.fromisoformat(complete_task["completed_at"])
+        if timestamp.day==datetime.now().day:
+            tasks_completed_today.append(complete_task)
+
+    #    - Task per giorno della settimana
+
     pass  # <-- IMPLEMENTA QUI
 
 
