@@ -58,7 +58,7 @@ def create_jwt(username: str) -> str:
 def decode_jwt(token: str) -> Optional[Dict[str, Any]]:
     """TODO: verifica il token e restituisci il payload oppure None."""
     try:
-        data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+        data = jwt.decode(token, app.config["SECRET_KEY"], JWT_ALGORITHM)
     except JWT_ERRORS:
         return None
     return data
@@ -167,8 +167,17 @@ def login() -> Any:
 
     
     #Crea il token con create_jwt, calcola expires_in e restituisci anche i dati utente.
+    current_user=USERS[username]
     
+    email=current_user["email"]
+    role=current_user["role"]
     token=create_jwt(username)
+    return jsonify(
+        {
+        "token":token,
+        "message":"ciao "+ username+" la tua email è "+ email+" sei un "+ role
+    }
+        )
 
 @app.get("/protected")
 @jwt_required
