@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Modifica Task - Task Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="margin-bottom: 2rem;">✎ Modifica Task</h1>
+    
+    <div class="card">
+        <form method="POST" action="/task/{{ task.id }}/edit">
+            <div class="form-group">
+                <label for="title">Titolo *</label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    required 
+                    autofocus
+                    value="{{ task.title }}"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Descrizione</label>
+                <textarea 
+                    id="description" 
+                    name="description"
+                >{{ task.description }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input 
+                        type="checkbox" 
+                        name="completed" 
+                        {% if task.completed %}checked{% endif %}
+                        style="width: auto;"
+                    >
+                    <span>Task completato</span>
+                </label>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+                <a href="/dashboard" class="btn btn-secondary">Annulla</a>
+            </div>
+        </form>
+    </div>
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; font-size: 0.875rem; color: #6b7280;">
+        <strong>Info Task:</strong><br>
+        ID: {{ task.id }}<br>
+        Creato: {{ task.created_at.strftime('%d/%m/%Y alle %H:%M') }}<br>
+        {% if task.completed_at %}
+            Completato: {{ task.completed_at.strftime('%d/%m/%Y alle %H:%M') }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
