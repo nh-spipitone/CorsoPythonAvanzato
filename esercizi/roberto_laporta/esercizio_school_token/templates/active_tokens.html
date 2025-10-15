@@ -1,0 +1,72 @@
+{% extends "base.html" %} {% block title %}Active Tokens - Bearer Token
+Lab{%endblock %} {% block content %}
+
+<h2>🔧 Token Attivi (Debug)</h2>
+
+<div class="alert alert-error">
+  <strong>⚠️ ATTENZIONE:</strong> Questa pagina è solo per scopi di debug. In
+  produzione, NON esporre mai questa informazione!
+</div>
+
+<div class="card">
+  <h3>📊 Statistiche</h3>
+  <div class="info-row">
+    <span class="info-label">Token Attivi Totali</span>
+    <span class="info-value">{{ total_tokens }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">Utente Corrente</span>
+    <span class="info-value">{{ current_user }}</span>
+  </div>
+</div>
+
+{% if tokens %}
+<div class="card">
+  <h3>🔑 Lista Token</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Token (preview)</th>
+        <th>Username</th>
+        <th>Creato</th>
+        <th>Scade</th>
+        <th>Stato</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for token in tokens %}
+      <tr>
+        <td><code>{{ token.token_preview }}</code></td>
+        <td>{{ token.username }}</td>
+        <td>{{ token.created }}</td>
+        <td>{{ token.expires }}</td>
+        <td>
+          {% if token.is_expired %}
+          <span class="badge badge-danger">Scaduto</span>
+          {% else %}
+          <span class="badge badge-success">Valido</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">Nessun token attivo al momento.</div>
+{% endif %}
+
+<div class="alert alert-info" style="margin-top: 1rem">
+  <strong>💡 Informazioni:</strong>
+  <ul style="margin-left: 1.5rem; margin-top: 0.5rem">
+    <li>Ogni utente può avere più token attivi (multi-device)</li>
+    <li>I token scaduti vengono rimossi automaticamente</li>
+    <li>Il logout invalida solo il token corrente</li>
+    <li>In produzione, usa Redis o database per memorizzare i token</li>
+  </ul>
+</div>
+
+<div style="margin-top: 1rem">
+  <a href="/dashboard" class="btn btn-primary">← Torna alla Dashboard</a>
+</div>
+{% endblock %}
