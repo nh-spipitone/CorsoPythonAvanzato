@@ -50,18 +50,18 @@ def create_jwt(username: str) -> str:
         "is_premium":None,
         "iat":issued_at.isoformat(),
         "exp":expires_at.isoformat()
-        
     }
+    jwt_token=jwt.encode{payload,app.config["SECRET_KEY"],JWT_ALGORITHM}
+    return jwt_token
 
 
 def decode_jwt(token: str) -> Optional[Dict[str, Any]]:
     """TODO: verifica il token e restituisci il payload oppure None."""
     try:
-        raise NotImplementedError(
-            "Decodifica usando jwt.decode con SECRET_KEY e JWT_ALGORITHM e gestisci le eccezioni."
-        )
+        data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
     except JWT_ERRORS:
         return None
+    return data
 
 
 def jwt_required(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -108,10 +108,14 @@ def premium_required(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     @jwt_required
     def wrapper(current_user: Dict[str, Any], *args: Any, **kwargs: Any) -> Any:
-        raise NotImplementedError(
-            "Verifica il claim is_premium nel payload e restituisci 403 se è False."
-        )
-
+    #Verifica il claim is_premium nel payload e restituisci 403 se è False."
+        if not current_user["is_premium"]:
+            return jsonify(
+                {
+                    "error":"premium mancante",
+                    "message":"si richiede l'essere premium"
+                },403
+            )
     return wrapper
 
 
