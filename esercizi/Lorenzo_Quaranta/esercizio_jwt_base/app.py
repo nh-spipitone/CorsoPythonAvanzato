@@ -165,27 +165,25 @@ def login() -> Any:
             401,
         )
 
-    raise NotImplementedError(
-        "Crea il token con create_jwt, calcola expires_in e restituisci anche i dati utente."
-    )
-
+    
+    #Crea il token con create_jwt, calcola expires_in e restituisci anche i dati utente.
+    
+    token=create_jwt(username)
 
 @app.get("/protected")
 @jwt_required
 def protected(current_user: Dict[str, Any]) -> Any:
     """TODO: restituisci un messaggio di benvenuto usando il payload."""
-    raise NotImplementedError(
-        "Restituisci un JSON con un messaggio personalizzato basato su current_user."
-    )
-
+    return jsonify({
+        "message":"benvenuto, "+ current_user["username"]+" !"
+    })
 
 @app.get("/me")
 @jwt_required
 def me(current_user: Dict[str, Any]) -> Any:
     """TODO: mostra claim e tempo residuo del token."""
-    raise NotImplementedError(
-        "Leggi i claim (username, email, role, exp) e calcola i secondi fino alla scadenza."
-    )
+       # "Leggi i claim (username, email, role, exp) e calcola i secondi fino alla scadenza."
+    
 
 
 @app.post("/notes")
