@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Flask Authentication{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Login</h2>
+        <p class="subtitle">Accedi al tuo account</p>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="remember" name="remember" value="true">
+                <label for="remember">Ricordami</label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Non hai un account? <a href="{{ url_for('register') }}">Registrati</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

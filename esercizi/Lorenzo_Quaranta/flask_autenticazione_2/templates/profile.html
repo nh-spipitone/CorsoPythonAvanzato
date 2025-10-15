@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Profilo - Flask Authentication{% endblock %}
+
+{% block content %}
+<div class="profile">
+    <h1>Il Tuo Profilo</h1>
+    
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ current_user.name[0].upper() }}
+            </div>
+            <div class="profile-info">
+                <h2>{{ current_user.name }}</h2>
+                <p class="username">@{{ current_user.id }}</p>
+            </div>
+        </div>
+        
+        <div class="profile-details">
+            <h3>Informazioni Account</h3>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>{{ current_user.id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Nome:</strong></td>
+                    <td>{{ current_user.name }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Stato:</strong></td>
+                    <td><span class="badge badge-success">Attivo</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Torna alla Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
