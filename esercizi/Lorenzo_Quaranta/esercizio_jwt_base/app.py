@@ -51,7 +51,7 @@ def create_jwt(username: str) -> str:
         "iat":issued_at.isoformat(),
         "exp":expires_at.isoformat()
     }
-    jwt_token=jwt.encode{payload,app.config["SECRET_KEY"],JWT_ALGORITHM}
+    jwt_token=jwt.encode(payload,app.config["SECRET_KEY"],JWT_ALGORITHM)
     return jwt_token
 
 
@@ -183,6 +183,16 @@ def protected(current_user: Dict[str, Any]) -> Any:
 def me(current_user: Dict[str, Any]) -> Any:
     """TODO: mostra claim e tempo residuo del token."""
        # "Leggi i claim (username, email, role, exp) e calcola i secondi fino alla scadenza."
+    username=current_user["username"]
+    email=current_user["email"]
+    role=current_user["role"]
+    expires=current_user["exp"]
+    seconds_to_exp=datetime.fromisoformat(expires) - datetime.now(timezone.utc)
+    seconds_to_exp=seconds_to_exp.total_seconds()
+
+    return jsonify({
+        "message": "ciao"+ username+" la tua email è"+ email+" sei un "+ role +" e il tuo token espira in " +str(seconds_to_exp) + "secondi, nel" +str(expires) 
+    })
     
 
 
@@ -204,19 +214,19 @@ def add_note(current_user: Dict[str, Any]) -> Any:
             400,
         )
 
-    raise NotImplementedError(
-        "Aggiungi la nota a NOTES[current_user['username']] e restituisci la lista aggiornata."
-    )
+ 
+    #"Aggiungi la nota a NOTES[current_user['username']] e restituisci la lista aggiornata."
+    
+    NOTES[current_user["username"]].append(content)
+    return jsonify(NOTES)
 
 
 @app.get("/notes/premium")
 @premium_required
 def premium_notes(current_user: Dict[str, Any]) -> Any:
     """TODO: restituisci tutte le note presenti (solo per utenti premium)."""
-    raise NotImplementedError(
-        "Combina le note di tutti gli utenti e restituiscile solo agli utenti premium."
-    )
-
+    
+    return jsonify(NOTES)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
