@@ -25,10 +25,14 @@ import secrets
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+@app.context_processor
+def inject_now():
+    return {"now": datetime.now}
 
 # =============================================================================
 # TODO 1: CONFIGURAZIONE
 # =============================================================================
+
 # Imposta la SECRET_KEY per le sessioni usando secrets.token_hex(16)
 app.config["SECRET_KEY"] = secrets.token_hex(16)  # <-- IMPLEMENTA QUI
 
@@ -43,7 +47,7 @@ TOKEN_EXPIRATION = timedelta(minutes=30)  # <-- IMPLEMENTA QUI (timedelta)
 
 # USERS: dizionario {username: password}
 # Esempio: {"mario": "pass123", "lucia": "secret456"}
-USERS = {"James":"yeah","Attila":"viulenza","Totti":"maggica"}  # <-- IMPLEMENTA QUI
+USERS = {"James":"yeahhh","Attila":"viulenza","Totti":"maggica"}  # <-- IMPLEMENTA QUI
 
 # ACTIVE_TOKENS: {token: {"username": str, "expires": datetime, "created": datetime}}
 ACTIVE_TOKENS = {}  # <-- IMPLEMENTA QUI
@@ -123,14 +127,14 @@ def login_required(f):
     def decorated(*args, **kwargs):
         if "token" not in session:
             flash("È necessario effettuare il login")
-            return redirect("login")
+            return redirect(url_for("login"))
         token=session["token"]
 
         username=verify_token(token)
         if not username:
             flash("È necessario effettuare nuovamente il login")
             del session["token"]
-            return redirect("login")
+            return redirect(url_for("login"))
         
         return f(current_user=username,*args, **kwargs)
 
@@ -151,7 +155,7 @@ def get_user_tasks(username, filter_completed=None):
     # 4. Se None, tutti i task
     # 5. Restituisci lista task
     user_tasks=[t for t in TASKS if t["username"]==username]
-    if(filter_completed):
+    if(filter_completed!=None):
         user_tasks=[t for t in user_tasks if t["completed"]==filter_completed]
     return user_tasks
 
@@ -175,6 +179,7 @@ def create_task(username, title, description=""):
     # 3. Aggiungi a TASKS
     # 4. Incrementa TASK_ID_COUNTER
     # 5. Restituisci il task creato
+    global TASK_ID_COUNTER
     new_task={}
     new_task["id"]=TASK_ID_COUNTER
     new_task["username"]=username
@@ -205,9 +210,10 @@ def update_task(task_id, username, title=None, description=None, completed=None)
             task["title"]=title
         if description!=None:
             task["description"]=description
+        task["completed"]=completed
         if completed==True:
-            new_task["completed"]=True
-            new_task["completed_at"]=datetime.now()
+            task["completed_at"]=datetime.now()
+            
         return True
 
   
@@ -281,7 +287,9 @@ def register():
         if username and username not in USERS.keys():
             if len(password)>6:
                 USERS[username]=password
-        pass  # <-- IMPLEMENTA QUI
+                return redirect("login")
+    return render_template("register.html")
+    
 
 
 # =============================================================================
@@ -347,7 +355,14 @@ def dashboard(current_user=None):
     # 3. Ottieni task con get_user_tasks()
     # 4. Ottieni stats con get_user_stats()
     # 5. Rendi template 'dashboard.html' con tasks, stats, filtro corrente
-    completed_filter=bool(request.args.get('filter'))
+    completed_filter=request.args.get('filter')
+    if(completed_filter=='completed'):
+        completed_filter=True
+    elif completed_filter=='todo': 
+        completed_filter=False
+    else: 
+        completed_filter=None
+
     user_tasks=get_user_tasks(current_user,completed_filter)
     user_stats=get_user_stats(current_user)
 
@@ -371,13 +386,16 @@ def new_task(current_user=None):
     #   3. Crea task con create_task()
     #   4. Flash messaggio successo
     #   5. Redirect a dashboard
-    form=request.form
-    title=form["title"]
-    description=form["description"]
-    if title:
-        create_task(user=current_user,title=title,description=description)
-        flash("task creato")
-    return redirect("dashboard")
+    if request.method=="POST":
+        form=request.form
+        title=form["title"]
+        description=form["description"]
+        if title:
+            create_task(username=current_user,title=title,description=description)
+            flash("task creato")
+        return redirect(url_for("dashboard"))
+    return render_template("new_task.html")
+
 
 
 # =============================================================================
@@ -400,16 +418,18 @@ def edit_task(task_id, current_user=None):
     task=get_task_by_id(task_id,current_user)
     if not task:
         flash("task inesistente o non appartente a questo utente")
-        return redirect("dashboard")
+        return redirect(url_for("dashboard"))
     if request.method=="POST":
         form=request.form
         title=form["title"]
         description=form["description"]
-        update_task(task_id,current_user,title,description)
+        completed=(form.get("completed")=="on")
+        print(completed)
+        update_task(task_id,current_user,title,description,completed)
         flash("task aggiornato")
-        return redirect("dashboard")
+        return redirect(url_for("dashboard"))
     else:
-        return render_template("edit_task.html")
+        return render_template("edit_task.html",task=task)
 
     
 
@@ -420,7 +440,7 @@ def edit_task(task_id, current_user=None):
 
 
 @app.route("/task/<int:task_id>/toggle", methods=["POST"])
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def toggle_task(task_id, current_user=None):
     """Segna task come completato/da fare."""
     # TODO 12a:
@@ -435,7 +455,7 @@ def toggle_task(task_id, current_user=None):
     else:
         completed_new_value= not task["completed"]
         update_task(task_id,current_user,completed=completed_new_value)
-    return redirect("dashboard")
+    return redirect(url_for("dashboard"))
 
 
 # =============================================================================
@@ -444,7 +464,7 @@ def toggle_task(task_id, current_user=None):
 
 
 @app.route("/task/<int:task_id>/delete", methods=["POST"])
-# @login_required  # <-- DECOMMENTA
+@login_required  # <-- DECOMMENTA
 def delete_task_route(task_id, current_user=None):
     """Elimina un task."""
     # TODO 13a:
@@ -456,7 +476,7 @@ def delete_task_route(task_id, current_user=None):
         flash("task cancellato con successo")
     else:
         flash("impossibile cancellare")
-    return redirect("dashboard")
+    return redirect(url_for("dashboard"))
 
 
 # =============================================================================
@@ -473,11 +493,13 @@ def stats(current_user=None):
     # 2. Calcola statistiche avanzate
     
     # 3. Rendi template 'stats.html' con dati
-    all_user_tasks=len(get_user_tasks(username))
-    completed_user_tasks=len(get_user_tasks(username,filter_completed=True))
-    pending_user_tasks=len(get_user_tasks(username,filter_completed=False))
+    all_user_tasks=get_user_tasks(current_user)
+    completed_user_tasks=get_user_tasks(current_user,filter_completed=True)
+    pending_user_tasks=get_user_tasks(current_user,filter_completed=False)
     stats=get_user_stats(current_user)
-    oldest_incomplete_task=stats["todo"][0]
+    if pending_user_tasks:
+        oldest_incomplete_task=pending_user_tasks[0]
+    else: oldest_incomplete_task=None
 
     #    - Task più vecchio non completato
     for incomplete_task in pending_user_tasks:
@@ -487,13 +509,34 @@ def stats(current_user=None):
     #    - Task completati oggi
     tasks_completed_today=[]
     for complete_task in completed_user_tasks:
-        timestamp=datetime.fromisoformat(complete_task["completed_at"])
+        timestamp=complete_task["completed_at"]
         if timestamp.day==datetime.now().day:
             tasks_completed_today.append(complete_task)
 
     #    - Task per giorno della settimana
+    tasks_by_weekday={
+        "Monday":0,
+        "Tuesday":0,
+        "Wednesday":0,
+        "Thursday":0,
+        "Friday":0,
+        "Saturday":0,
+        "Sunday":0
+    }
 
-    pass  # <-- IMPLEMENTA QUI
+    for task in all_user_tasks:
+        timestamp=task["created_at"]
+        weekday=datetime.isocalendar(timestamp).weekday
+        weekday_str=list(tasks_by_weekday.keys())[weekday]
+        tasks_by_weekday[weekday_str]+=1
+
+
+
+    return render_template("stats.html",
+                           stats=stats,completed_today=len(tasks_completed_today),
+                           total_tasks=len(all_user_tasks),
+                           oldest_pending=oldest_incomplete_task,
+                           tasks_by_weekday=tasks_by_weekday)
 
 
 # =============================================================================

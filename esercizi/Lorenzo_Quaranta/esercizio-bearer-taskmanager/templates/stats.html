@@ -1,116 +1,220 @@
-{% extends "base.html" %}
-
-{% block title %}Statistiche - Task Manager{% endblock %}
-
-{% block content %}
-<h1 style="margin-bottom: 2rem;">📊 Le Tue Statistiche</h1>
+{% extends "base.html" %} {% block title %}Statistiche - Task Manager{% endblock
+%} {% block content %}
+<h1 style="margin-bottom: 2rem">📊 Le Tue Statistiche</h1>
 
 <!-- Statistiche Generali -->
 <div class="stats-grid">
-    <div class="stat-card">
-        <h3>Totale Task</h3>
-        <div class="stat-value">{{ stats.total }}</div>
+  <div class="stat-card">
+    <h3>Totale Task</h3>
+    <div class="stat-value">{{ stats.total }}</div>
+  </div>
+  <div class="stat-card success">
+    <h3>Completati</h3>
+    <div class="stat-value">{{ stats.completed }}</div>
+  </div>
+  <div class="stat-card warning">
+    <h3>Da Fare</h3>
+    <div class="stat-value">{{ stats.todo }}</div>
+  </div>
+  <div class="stat-card">
+    <h3>Percentuale Completamento</h3>
+    <div class="stat-value">
+      {% if stats.total > 0 %} {{ ((stats.completed / stats.total) * 100) |
+      round(1) }}% {% else %} 0% {% endif %}
     </div>
-    <div class="stat-card success">
-        <h3>Completati</h3>
-        <div class="stat-value">{{ stats.completed }}</div>
-    </div>
-    <div class="stat-card warning">
-        <h3>Da Fare</h3>
-        <div class="stat-value">{{ stats.todo }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Percentuale Completamento</h3>
-        <div class="stat-value">
-            {% if stats.total > 0 %}
-                {{ ((stats.completed / stats.total) * 100) | round(1) }}%
-            {% else %}
-                0%
-            {% endif %}
-        </div>
-    </div>
+  </div>
 </div>
+
+<!-- Statistiche Avanzate -->
+<div
+  class="stats-grid"
+  style="
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin-top: 1rem;
+  "
+>
+  <div class="stat-card">
+    <h3>Completati Oggi</h3>
+    <div class="stat-value">{{ completed_today }}</div>
+  </div>
+  <div class="stat-card">
+    <h3>Completati Settimana</h3>
+    <div class="stat-value">{{ completed_last_week }}</div>
+  </div>
+  <div class="stat-card">
+    <h3>Tempo Medio</h3>
+    <div class="stat-value">{{ avg_completion_time }} giorni</div>
+  </div>
+</div>
+
+<!-- Task per Giorno della Settimana -->
+<div class="card" style="margin-top: 2rem">
+  <h2>📅 Task Creati per Giorno della Settimana</h2>
+  <div class="weekday-chart">
+    {% for day, count in tasks_by_weekday.items() %}
+    <div class="weekday-bar">
+      <div class="bar-label">{{ day }}</div>
+      <div class="bar-container">
+        <div
+          class="bar-fill"
+          style="width: {% if total_tasks > 0 %}{{ (count / total_tasks * 100)|round }}%{% else %}0%{% endif %}"
+        >
+          <span class="bar-count">{{ count }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Task Più Vecchio Non Completato -->
+{% if oldest_pending %}
+<div
+  class="card"
+  style="margin-top: 2rem; background: #fff3cd; border-left: 4px solid #ffc107"
+>
+  <h2>⏳ Task in Sospeso da Più Tempo</h2>
+  <div style="margin-top: 1rem">
+    <h3 style="color: #856404; margin-bottom: 0.5rem">
+      {{ oldest_pending.title }}
+    </h3>
+    <p style="color: #856404; margin: 0">
+      Creato il {{ oldest_pending.created_at.strftime('%d/%m/%Y alle %H:%M') }}
+      ({{ (now().date() - oldest_pending.created_at.date()).days }} giorni fa)
+    </p>
+    {% if oldest_pending.description %}
+    <p style="color: #856404; margin-top: 0.5rem">
+      {{ oldest_pending.description }}
+    </p>
+    {% endif %}
+    <a
+      href="/task/{{ oldest_pending.id }}/edit"
+      class="btn btn-primary"
+      style="margin-top: 1rem"
+    >
+      Completa Ora →
+    </a>
+  </div>
+</div>
+{% endif %}
 
 <!-- Task Recenti -->
 {% if recent_tasks %}
 <div class="card">
-    <h2>🕐 Task Recenti (ultimi 5)</h2>
-    <ul class="task-list">
-        {% for task in recent_tasks %}
-            <li class="task-item {% if task.completed %}completed{% endif %}">
-                <div class="task-content">
-                    <div class="task-title">
-                        {% if task.completed %}✓{% endif %} {{ task.title }}
-                    </div>
-                    <div class="task-meta">
-                        Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
-                    </div>
-                </div>
-                <div>
-                    {% if task.completed %}
-                        <span class="badge badge-success">Completato</span>
-                    {% else %}
-                        <span class="badge badge-warning">Da Fare</span>
-                    {% endif %}
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-<!-- Task Più Vecchi -->
-{% if oldest_incomplete %}
-<div class="card">
-    <h2>⏰ Task Da Fare Più Vecchi</h2>
-    <ul class="task-list">
-        {% for task in oldest_incomplete %}
-            <li class="task-item">
-                <div class="task-content">
-                    <div class="task-title">{{ task.title }}</div>
-                    <div class="task-meta">
-                        Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
-                    </div>
-                </div>
-                <div class="task-actions">
-                    <a href="/task/{{ task.id }}/edit" class="btn btn-sm btn-primary">Completa Ora →</a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+  <h2>🕐 Task Recenti (ultimi 5)</h2>
+  <ul class="task-list">
+    {% for task in recent_tasks %}
+    <li class="task-item {% if task.completed %}completed{% endif %}">
+      <div class="task-content">
+        <div class="task-title">
+          {% if task.completed %}✓{% endif %} {{ task.title }}
+        </div>
+        <div class="task-meta">
+          Creato: {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+      </div>
+      <div>
+        {% if task.completed %}
+        <span class="badge badge-success">Completato</span>
+        {% else %}
+        <span class="badge badge-warning">Da Fare</span>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
 </div>
 {% endif %}
 
 <!-- Completamenti Recenti -->
 {% if recently_completed %}
 <div class="card">
-    <h2>✅ Completati di Recente</h2>
-    <ul class="task-list">
-        {% for task in recently_completed %}
-            <li class="task-item completed">
-                <div class="task-content">
-                    <div class="task-title">✓ {{ task.title }}</div>
-                    <div class="task-meta">
-                        Completato: {{ task.completed_at.strftime('%d/%m/%Y %H:%M') }}
-                    </div>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+  <h2>✅ Completati di Recente</h2>
+  <ul class="task-list">
+    {% for task in recently_completed %}
+    <li class="task-item completed">
+      <div class="task-content">
+        <div class="task-title">✓ {{ task.title }}</div>
+        <div class="task-meta">
+          Completato: {{ task.completed_at.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
 </div>
 {% endif %}
 
 <!-- Nessun Task -->
 {% if stats.total == 0 %}
 <div class="empty-state">
-    <div class="empty-state-icon">📊</div>
-    <h2>Nessuna statistica disponibile</h2>
-    <p>Crea il tuo primo task per iniziare a tracciare le tue attività!</p>
-    <a href="/task/new" class="btn btn-primary" style="margin-top: 1rem;">Crea il primo task</a>
+  <div class="empty-state-icon">📊</div>
+  <h2>Nessuna statistica disponibile</h2>
+  <p>Crea il tuo primo task per iniziare a tracciare le tue attività!</p>
+  <a href="/task/new" class="btn btn-primary" style="margin-top: 1rem"
+    >Crea il primo task</a
+  >
 </div>
 {% endif %}
 
-<div style="margin-top: 2rem; text-align: center;">
-    <a href="/dashboard" class="btn btn-secondary">← Torna alla Dashboard</a>
+<div style="margin-top: 2rem; text-align: center">
+  <a href="/dashboard" class="btn btn-secondary">← Torna alla Dashboard</a>
 </div>
+
+<style>
+  /* Stili per il grafico giorni della settimana */
+  .weekday-chart {
+    margin-top: 1.5rem;
+  }
+
+  .weekday-bar {
+    margin-bottom: 1rem;
+  }
+
+  .bar-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-size: 0.95rem;
+  }
+
+  .bar-container {
+    background: #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    height: 40px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .bar-fill {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.5s ease;
+    min-width: 40px;
+    position: relative;
+  }
+
+  .bar-count {
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Animazione all'ingresso */
+  @keyframes growBar {
+    from {
+      width: 0;
+    }
+  }
+
+  .bar-fill {
+    animation: growBar 1s ease-out;
+  }
+</style>
+
 {% endblock %}
