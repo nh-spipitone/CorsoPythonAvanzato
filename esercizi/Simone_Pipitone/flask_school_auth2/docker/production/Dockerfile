@@ -11,6 +11,8 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 COPY . .
+COPY run_simple_checks.py /app/run_simple_checks.py
+RUN pip install requests
 
 ENV FLASK_ENV=production
 

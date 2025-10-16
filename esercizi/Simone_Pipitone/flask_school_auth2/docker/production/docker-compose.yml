@@ -29,5 +29,15 @@ services:
                 condition: service_healthy
         restart: always
         command: gunicorn --bind 0.0.0.0:8000 app:app
+    test:
+        build:
+            context: ../..
+            dockerfile: docker/production/Dockerfile
+        command: ["python", "/app/run_simple_checks.py"]
+        depends_on:
+            - web
+        environment:
+            - APP_BASE_URL=http://web:8000/
+            - APP_CHECK_TIMEOUT=20
 volumes:
     dbdata:
