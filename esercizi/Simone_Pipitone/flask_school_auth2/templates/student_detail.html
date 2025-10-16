@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.name }} - Registro Scolastico{% endblock %}
+
+{% block content %}
+<header class="header">
+  <h1>👤 {{ student.name }}</h1>
+  <p class="subtitle">Classe {{ student.class }}</p>
+  <a href="{{ url_for('students_list') }}" class="btn btn-secondary">← Torna alla lista</a>
+</header>
+
+<section class="summary-grid">
+  <div class="card">
+    <h3>📊 Media Voti</h3>
+    <p class="metric">{{ "%.2f"|format(summary.avg) }}</p>
+    <small>{{ summary.count }} voti registrati</small>
+  </div>
+  <div class="card">
+    <h3>✅ Presenze</h3>
+    <p class="metric">{{ summary.present }}</p>
+  </div>
+  <div class="card">
+    <h3>❌ Assenze</h3>
+    <p class="metric">{{ summary.absent }}</p>
+  </div>
+  <div class="card">
+    <h3>⏰ Ritardi</h3>
+    <p class="metric">{{ summary.late }}</p>
+    <small>{{ summary.minutes_late }} minuti totali</small>
+  </div>
+</section>
+
+<div class="detail-sections">
+  <!-- Sezione Voti -->
+  <section class="detail-section">
+    <div class="section-header">
+      <h2>📝 Voti</h2>
+      <a href="{{ url_for('new_grade', student_id=student.id) }}" class="btn btn-primary">+ Nuovo Voto</a>
+    </div>
+    {% if grades %}
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Materia</th>
+              <th>Voto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for grade in grades %}
+            <tr>
+              <td>{{ grade.date }}</td>
+              <td>{{ grade.subject }}</td>
+              <td><span class="badge badge-grade">{{ grade.value }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty-state">Nessun voto registrato</p>
+    {% endif %}
+  </section>
+
+  <!-- Sezione Presenze -->
+  <section class="detail-section">
+    <div class="section-header">
+      <h2>✅ Presenze</h2>
+      <a href="{{ url_for('new_attendance', student_id=student.id) }}" class="btn btn-primary">+ Nuova Presenza</a>
+    </div>
+    {% if attendance %}
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Stato</th>
+              <th>Minuti Ritardo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for att in attendance %}
+            <tr>
+              <td>{{ att.date }}</td>
+              <td>
+                {% if att.status == 'present' %}
+                  <span class="badge badge-success">Presente</span>
+                {% elif att.status == 'absent' %}
+                  <span class="badge badge-danger">Assente</span>
+                {% elif att.status == 'late' %}
+                  <span class="badge badge-warning">Ritardo</span>
+                {% endif %}
+              </td>
+              <td>{{ att.minutes_late or 0 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty-state">Nessuna presenza registrata</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
