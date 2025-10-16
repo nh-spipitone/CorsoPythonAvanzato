@@ -8,15 +8,35 @@ from flask_login import (
     current_user,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-import os, json
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+import json
+import os
 from json import JSONDecodeError
-from datetime import datetime
+from datetime import datetime, date as _date
+from typing import Any, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "db.json")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-change-in-production"
+
+
+def _resolve_database_uri() -> str:
+    uri = os.environ.get("DATABASE_URL")
+    if uri:
+        if uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        return uri
+    return f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}"
+
+
+app.config["SQLALCHEMY_DATABASE_URI"] = _resolve_database_uri()
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
 
 # ============================================
 # 1: Inizializza Flask-Login
@@ -28,7 +48,7 @@ app.config["SECRET_KEY"] = "your-secret-key-change-in-production"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "login"  # type: ignore[assignment]
 login_manager.login_message = (
     "Per favore effettua il login per accedere a questa pagina."
 )
@@ -47,6 +67,99 @@ users_db = {
         "name": "Segreteria Scolastica",
     },
 }
+
+
+class Student(db.Model):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(128), nullable=False)
+    class_name: Mapped[Optional[str]] = mapped_column("class", db.String(32))
+
+    grades: Mapped[list["Grade"]] = relationship(
+        "Grade", back_populates="student", cascade="all, delete-orphan"
+    )
+    attendance_records: Mapped[list["Attendance"]] = relationship(
+        "Attendance", back_populates="student", cascade="all, delete-orphan"
+    )
+
+    def __init__(
+        self,
+        *,
+        id: int | None = None,
+        name: str,
+        class_name: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+        if id is not None:
+            self.id = id
+        self.name = name
+        self.class_name = class_name
+
+
+class Grade(db.Model):
+    __tablename__ = "grades"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    student_id: Mapped[int] = mapped_column(
+        db.Integer, db.ForeignKey("students.id"), nullable=False
+    )
+    subject: Mapped[str] = mapped_column(db.String(128), nullable=False)
+    value: Mapped[float] = mapped_column(db.Float, nullable=False)
+    date: Mapped[_date] = mapped_column(db.Date, nullable=False)
+
+    student = relationship("Student", back_populates="grades")
+
+    def __init__(
+        self,
+        *,
+        id: int | None = None,
+        student_id: int,
+        subject: str,
+        value: float,
+        date: _date,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+        if id is not None:
+            self.id = id
+        self.student_id = student_id
+        self.subject = subject
+        self.value = value
+        self.date = date
+
+
+class Attendance(db.Model):
+    __tablename__ = "attendance"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    student_id: Mapped[int] = mapped_column(
+        db.Integer, db.ForeignKey("students.id"), nullable=False
+    )
+    date: Mapped[_date] = mapped_column(db.Date, nullable=False)
+    status: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    minutes_late: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
+
+    student = relationship("Student", back_populates="attendance_records")
+
+    def __init__(
+        self,
+        *,
+        id: int | None = None,
+        student_id: int,
+        date: _date,
+        status: str,
+        minutes_late: int = 0,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+        if id is not None:
+            self.id = id
+        self.student_id = student_id
+        self.date = date
+        self.status = status
+        self.minutes_late = minutes_late
 
 
 # ============================================
@@ -87,42 +200,6 @@ def user_loader(username):
 # ============================================
 
 
-# --- Database Helpers (NON MODIFICARE) ---
-def empty_db():
-    return {"students": [], "grades": [], "attendance": []}
-
-
-def load_db():
-    if not os.path.exists(DB_PATH):
-        db = empty_db()
-        save_db(db)
-        return db
-    try:
-        with open(DB_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            data.setdefault("students", [])
-            data.setdefault("grades", [])
-            data.setdefault("attendance", [])
-            return data
-    except (JSONDecodeError, OSError):
-        db = empty_db()
-        save_db(db)
-        return db
-
-
-def save_db(db):
-    with open(DB_PATH, "w", encoding="utf-8") as f:
-        json.dump(db, f, ensure_ascii=False, indent=2)
-
-
-def next_id(seq):
-    return (max([r.get("id", 0) for r in seq]) + 1) if seq else 1
-
-
-def get_student(db, student_id):
-    return next((s for s in db.get("students", []) if s.get("id") == student_id), None)
-
-
 def parse_date_yyyy_mm_dd(s):
     try:
         return datetime.strptime(s, "%Y-%m-%d").date()
@@ -130,11 +207,35 @@ def parse_date_yyyy_mm_dd(s):
         return None
 
 
-def compute_summary(db, student_id):
-    grades = [g for g in db.get("grades", []) if g.get("student_id") == student_id]
-    attendance = [
-        a for a in db.get("attendance", []) if a.get("student_id") == student_id
-    ]
+def _student_to_dict(student: Student) -> dict:
+    return {
+        "id": student.id,
+        "name": student.name,
+        "class": student.class_name,
+    }
+
+
+def _grade_to_dict(grade: Grade) -> dict:
+    return {
+        "id": grade.id,
+        "student_id": grade.student_id,
+        "subject": grade.subject,
+        "value": float(grade.value),
+        "date": grade.date.isoformat() if grade.date else None,
+    }
+
+
+def _attendance_to_dict(attendance: Attendance) -> dict:
+    return {
+        "id": attendance.id,
+        "student_id": attendance.student_id,
+        "date": attendance.date.isoformat() if attendance.date else None,
+        "status": attendance.status,
+        "minutes_late": int(attendance.minutes_late or 0),
+    }
+
+
+def compute_summary(grades: list[dict], attendance: list[dict]) -> dict:
     avg = sum(g.get("value", 0) for g in grades) / len(grades) if grades else 0.0
     present = sum(1 for a in attendance if a.get("status") == "present")
     absent = sum(1 for a in attendance if a.get("status") == "absent")
@@ -152,18 +253,83 @@ def compute_summary(db, student_id):
     }
 
 
+def _load_stats() -> dict:
+    return {
+        "total_students": Student.query.count(),
+        "total_grades": Grade.query.count(),
+        "total_attendance": Attendance.query.count(),
+    }
+
+
+def _seed_data_from_json() -> None:
+    if Student.query.first() is not None:
+        return
+    if not os.path.exists(DB_PATH):
+        return
+    try:
+        with open(DB_PATH, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except (OSError, JSONDecodeError):
+        return
+
+    for student_data in raw.get("students", []):
+        student = Student(
+            id=student_data.get("id"),
+            name=student_data.get("name"),
+            class_name=student_data.get("class"),
+        )
+        db.session.add(student)
+
+    db.session.flush()
+
+    for grade_data in raw.get("grades", []):
+        grade_date = parse_date_yyyy_mm_dd(grade_data.get("date", ""))
+        grade = Grade(
+            id=grade_data.get("id"),
+            student_id=grade_data.get("student_id"),
+            subject=grade_data.get("subject"),
+            value=float(grade_data.get("value", 0)),
+            date=grade_date or datetime.utcnow().date(),
+        )
+        db.session.add(grade)
+
+    db.session.flush()
+
+    for attendance_data in raw.get("attendance", []):
+        attendance_date = parse_date_yyyy_mm_dd(attendance_data.get("date", ""))
+        attendance = Attendance(
+            id=attendance_data.get("id"),
+            student_id=attendance_data.get("student_id"),
+            date=attendance_date or datetime.utcnow().date(),
+            status=attendance_data.get("status"),
+            minutes_late=int(attendance_data.get("minutes_late", 0)),
+        )
+        db.session.add(attendance)
+
+    db.session.commit()
+
+    if db.engine.dialect.name == "postgresql":
+        tables = (
+            Student.__tablename__,
+            Grade.__tablename__,
+            Attendance.__tablename__,
+        )
+        for table_name in tables:
+            sql = text(
+                "SELECT setval(pg_get_serial_sequence(:table_name, 'id'), "
+                "COALESCE((SELECT MAX(id) FROM " + table_name + "), 1))"
+            )
+            db.session.execute(sql, {"table_name": table_name})
+        db.session.commit()
+
+
 # --- Routes Autenticazione ---
 
 
 @app.route("/")
 def index():
     """Homepage pubblica - NON richiede autenticazione"""
-    db = load_db()
-    stats = {
-        "total_students": len(db.get("students", [])),
-        "total_grades": len(db.get("grades", [])),
-        "total_attendance": len(db.get("attendance", [])),
-    }
+    stats = _load_stats()
     return render_template("index.html", stats=stats)
 
 
@@ -197,9 +363,6 @@ def login():
         else:
             flash("Credenziali non valide. Riprova.", "danger")
 
-        # ============================================
-        pass
-
     return render_template("login.html")
 
 
@@ -207,12 +370,7 @@ def login():
 @login_required
 def dashboard():
     """Dashboard utente - Richiede autenticazione"""
-    db = load_db()
-    stats = {
-        "total_students": len(db.get("students", [])),
-        "total_grades": len(db.get("grades", [])),
-        "total_attendance": len(db.get("attendance", [])),
-    }
+    stats = _load_stats()
     return render_template("dashboard.html", name=current_user.name, stats=stats)
 
 
@@ -246,32 +404,39 @@ def logout():
 @login_required
 def students_list():
     """Lista studenti"""
-    db = load_db()
-    return render_template("students.html", students=db.get("students", []))
+    students = [
+        _student_to_dict(student)
+        for student in Student.query.order_by(Student.id).all()
+    ]
+    return render_template("students.html", students=students)
 
 
 @app.get("/students/<int:student_id>")
 @login_required
 def student_detail(student_id):
     """Dettaglio studente"""
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return ("Studente non trovato", 404)
-    grades = [g for g in db.get("grades", []) if g.get("student_id") == student_id]
-    grades = sorted(
-        grades, key=lambda g: (g.get("date") or "", g.get("id", 0)), reverse=True
+
+    grades_records = (
+        Grade.query.filter_by(student_id=student_id)
+        .order_by(Grade.date.desc(), Grade.id.desc())
+        .all()
     )
-    attendance = [
-        a for a in db.get("attendance", []) if a.get("student_id") == student_id
-    ]
-    attendance = sorted(
-        attendance, key=lambda a: (a.get("date") or "", a.get("id", 0)), reverse=True
+    grades = [_grade_to_dict(grade) for grade in grades_records]
+
+    attendance_records = (
+        Attendance.query.filter_by(student_id=student_id)
+        .order_by(Attendance.date.desc(), Attendance.id.desc())
+        .all()
     )
-    summary = compute_summary(db, student_id)
+    attendance = [_attendance_to_dict(record) for record in attendance_records]
+
+    summary = compute_summary(grades, attendance)
     return render_template(
         "student_detail.html",
-        student=student,
+        student=_student_to_dict(student),
         grades=grades,
         attendance=attendance,
         summary=summary,
@@ -282,14 +447,13 @@ def student_detail(student_id):
 @login_required
 def new_grade(student_id):
     """Form nuovo voto"""
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return ("Studente non trovato", 404)
     today = datetime.today().strftime("%Y-%m-%d")
     return render_template(
         "form_grade.html",
-        student=student,
+        student=_student_to_dict(student),
         errors=[],
         form={"subject": "", "value": "", "date": today},
     )
@@ -299,8 +463,7 @@ def new_grade(student_id):
 @login_required
 def create_grade(student_id):
     """Crea nuovo voto"""
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return ("Studente non trovato", 404)
 
@@ -311,6 +474,7 @@ def create_grade(student_id):
     errors = []
     if not subject:
         errors.append("La materia è obbligatoria.")
+    value: float | None = None
     try:
         value = float(value_raw)
         if not (0 <= value <= 10):
@@ -319,29 +483,32 @@ def create_grade(student_id):
         errors.append("Il voto deve essere numerico.")
         value = None
 
-    if not parse_date_yyyy_mm_dd(date_s):
+    grade_date = parse_date_yyyy_mm_dd(date_s)
+    if not grade_date:
         errors.append("Data non valida. Usa formato YYYY-MM-DD.")
 
     if errors:
         return (
             render_template(
                 "form_grade.html",
-                student=student,
+                student=_student_to_dict(student),
                 errors=errors,
                 form={"subject": subject, "value": value_raw, "date": date_s},
             ),
             400,
         )
 
-    grade = {
-        "id": next_id(db["grades"]),
-        "student_id": student_id,
-        "subject": subject,
-        "value": value,
-        "date": date_s,
-    }
-    db["grades"].append(grade)
-    save_db(db)
+    assert value is not None
+    assert grade_date is not None
+
+    grade = Grade(
+        student_id=student_id,
+        subject=subject,
+        value=value,
+        date=grade_date,
+    )
+    db.session.add(grade)
+    db.session.commit()
     return redirect(url_for("student_detail", student_id=student_id))
 
 
@@ -349,14 +516,13 @@ def create_grade(student_id):
 @login_required
 def new_attendance(student_id):
     """Form nuova presenza"""
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return ("Studente non trovato", 404)
     today = datetime.today().strftime("%Y-%m-%d")
     return render_template(
         "form_attendance.html",
-        student=student,
+        student=_student_to_dict(student),
         errors=[],
         form={"date": today, "status": "", "minutes_late": ""},
     )
@@ -366,8 +532,7 @@ def new_attendance(student_id):
 @login_required
 def create_attendance(student_id):
     """Crea nuova presenza"""
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return ("Studente non trovato", 404)
 
@@ -376,7 +541,8 @@ def create_attendance(student_id):
     minutes_raw = (request.form.get("minutes_late") or "").strip()
 
     errors = []
-    if not parse_date_yyyy_mm_dd(date_s):
+    attendance_date = parse_date_yyyy_mm_dd(date_s)
+    if not attendance_date:
         errors.append("Data non valida. Usa formato YYYY-MM-DD.")
     if status not in {"present", "absent", "late"}:
         errors.append("Stato non valido (present/absent/late).")
@@ -396,22 +562,23 @@ def create_attendance(student_id):
         return (
             render_template(
                 "form_attendance.html",
-                student=student,
+                student=_student_to_dict(student),
                 errors=errors,
                 form={"date": date_s, "status": status, "minutes_late": minutes_raw},
             ),
             400,
         )
 
-    att = {
-        "id": next_id(db["attendance"]),
-        "student_id": student_id,
-        "date": date_s,
-        "status": status,
-        "minutes_late": minutes if status == "late" else 0,
-    }
-    db["attendance"].append(att)
-    save_db(db)
+    assert attendance_date is not None
+
+    attendance = Attendance(
+        student_id=student_id,
+        date=attendance_date,
+        status=status,
+        minutes_late=minutes if status == "late" else 0,
+    )
+    db.session.add(attendance)
+    db.session.commit()
     return redirect(url_for("student_detail", student_id=student_id))
 
 
@@ -420,21 +587,38 @@ def create_attendance(student_id):
 
 @app.get("/api/students")
 def api_students():
-    db = load_db()
-    return jsonify(db.get("students", []))
+    students = [
+        _student_to_dict(student)
+        for student in Student.query.order_by(Student.id).all()
+    ]
+    return jsonify(students)
 
 
 @app.get("/api/students/<int:student_id>")
 def api_student(student_id):
-    db = load_db()
-    student = get_student(db, student_id)
+    student = Student.query.get(student_id)
     if not student:
         return jsonify(error="not_found"), 404
-    grades = [g for g in db.get("grades", []) if g.get("student_id") == student_id]
-    attendance = [
-        a for a in db.get("attendance", []) if a.get("student_id") == student_id
+    grades = [
+        _grade_to_dict(grade)
+        for grade in Grade.query.filter_by(student_id=student_id).all()
     ]
-    return jsonify({"student": student, "grades": grades, "attendance": attendance})
+    attendance = [
+        _attendance_to_dict(record)
+        for record in Attendance.query.filter_by(student_id=student_id).all()
+    ]
+    return jsonify(
+        {
+            "student": _student_to_dict(student),
+            "grades": grades,
+            "attendance": attendance,
+        }
+    )
+
+
+with app.app_context():
+    db.create_all()
+    _seed_data_from_json()
 
 
 if __name__ == "__main__":
