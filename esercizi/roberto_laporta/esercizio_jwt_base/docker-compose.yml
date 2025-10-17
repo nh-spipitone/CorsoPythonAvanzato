@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      FLASK_ENV: production
+    restart: always
+    command: gunicorn --bind 0.0.0.0:8000 app:app
+
+  test:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: ["python3", "/app/tests.py"]
+    depends_on:
+      - web
+    environment:
+      - APP_BASE_URL=http://web:8000/
