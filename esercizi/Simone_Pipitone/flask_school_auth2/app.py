@@ -1,4 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+# Importazione delle librerie necessarie da Flask e altri moduli
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    jsonify,
+    flash,
+)  # Importa funzioni principali di Flask
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -6,60 +15,73 @@ from flask_login import (
     logout_user,
     login_required,
     current_user,
-)
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-import json
-import os
-from json import JSONDecodeError
-from datetime import datetime, date as _date
-from typing import Any, Optional
+)  # Importa estensione Flask-Login per la gestione autenticazione
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash,
+)  # Per gestire hash delle password
+from flask_sqlalchemy import SQLAlchemy  # ORM per database
+from sqlalchemy import text  # Per eseguire query SQL raw
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+)  # Per tipizzare i modelli SQLAlchemy
+import json  # Per lavorare con file JSON
+import os  # Per operazioni su file system
+from json import JSONDecodeError  # Per gestire errori di parsing JSON
+from datetime import datetime, date as _date  # Per gestire date e orari
+from typing import Any, Optional  # Tipi opzionali e generici
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "db.json")
+# Imposta la directory base e il percorso del file JSON del database
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory corrente del file
+DB_PATH = os.path.join(BASE_DIR, "db.json")  # Percorso del file JSON con dati iniziali
 
+# Crea l'app Flask
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "your-secret-key-change-in-production"
+app.config["SECRET_KEY"] = (
+    "your-secret-key-change-in-production"  # Chiave segreta per la sessione
+)
 
 
+# Funzione per risolvere la URI del database
 def _resolve_database_uri() -> str:
-    uri = os.environ.get("DATABASE_URL")
+    uri = os.environ.get(
+        "DATABASE_URL"
+    )  # Prende la variabile d'ambiente DATABASE_URL se esiste
     if uri:
-        if uri.startswith("postgres://"):
+        if uri.startswith("postgres://"):  # Corregge lo schema per PostgreSQL
             uri = uri.replace("postgres://", "postgresql://", 1)
         return uri
-    return f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}"
+    return f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}"  # Default: SQLite
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = _resolve_database_uri()
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Configurazione SQLAlchemy
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    _resolve_database_uri()
+)  # Imposta la stringa di connessione al DB
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
+    False  # Disabilita notifiche di modifica (più efficiente)
+)
 
-db = SQLAlchemy(app)
+# Inizializza SQLAlchemy
+db = SQLAlchemy(app)  # Crea oggetto database
 
 # ============================================
 # 1: Inizializza Flask-Login
-# - Crea un'istanza di LoginManager
-# - Inizializzala con l'app Flask
-# - Imposta login_view su "login"
-# - Imposta un messaggio personalizzato per login_message
 # ============================================
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"  # type: ignore[assignment]
-login_manager.login_message = (
-    "Per favore effettua il login per accedere a questa pagina."
-)
-
+login_manager = LoginManager()  # Crea il gestore di login
+login_manager.init_app(app)  # Inizializza con l'app Flask
+login_manager.login_view = "login"  # type: ignore # Imposta la view di login
+login_manager.login_message = "Per favore effettua il login per accedere a questa pagina."  # Messaggio personalizzato
 
 # ============================================
 
-# Database utenti (in produzione usare un vero database)
+# Database utenti fittizio (solo per esempio, non in produzione)
 users_db = {
     "prof.rossi": {
-        "password": generate_password_hash("prof123"),
+        "password": generate_password_hash("prof123"),  # Password hashata
         "name": "Prof. Mario Rossi",
     },
     "segreteria": {
@@ -69,19 +91,20 @@ users_db = {
 }
 
 
+# Definizione del modello Student
 class Student(db.Model):
-    __tablename__ = "students"
+    __tablename__ = "students"  # Nome tabella
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(db.String(128), nullable=False)
-    class_name: Mapped[Optional[str]] = mapped_column("class", db.String(32))
+    id: Mapped[int] = mapped_column(primary_key=True)  # Chiave primaria
+    name: Mapped[str] = mapped_column(db.String(128), nullable=False)  # Nome studente
+    class_name: Mapped[Optional[str]] = mapped_column("class", db.String(32))  # Classe
 
     grades: Mapped[list["Grade"]] = relationship(
         "Grade", back_populates="student", cascade="all, delete-orphan"
-    )
+    )  # Relazione con voti
     attendance_records: Mapped[list["Attendance"]] = relationship(
         "Attendance", back_populates="student", cascade="all, delete-orphan"
-    )
+    )  # Relazione con presenze
 
     def __init__(
         self,
@@ -98,18 +121,19 @@ class Student(db.Model):
         self.class_name = class_name
 
 
+# Definizione del modello Grade (voto)
 class Grade(db.Model):
     __tablename__ = "grades"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     student_id: Mapped[int] = mapped_column(
         db.Integer, db.ForeignKey("students.id"), nullable=False
-    )
-    subject: Mapped[str] = mapped_column(db.String(128), nullable=False)
-    value: Mapped[float] = mapped_column(db.Float, nullable=False)
-    date: Mapped[_date] = mapped_column(db.Date, nullable=False)
+    )  # Chiave esterna verso Student
+    subject: Mapped[str] = mapped_column(db.String(128), nullable=False)  # Materia
+    value: Mapped[float] = mapped_column(db.Float, nullable=False)  # Voto
+    date: Mapped[_date] = mapped_column(db.Date, nullable=False)  # Data
 
-    student = relationship("Student", back_populates="grades")
+    student = relationship("Student", back_populates="grades")  # Relazione inversa
 
     def __init__(
         self,
@@ -130,18 +154,23 @@ class Grade(db.Model):
         self.date = date
 
 
+# Definizione del modello Attendance (presenza)
 class Attendance(db.Model):
     __tablename__ = "attendance"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     student_id: Mapped[int] = mapped_column(
         db.Integer, db.ForeignKey("students.id"), nullable=False
-    )
-    date: Mapped[_date] = mapped_column(db.Date, nullable=False)
-    status: Mapped[str] = mapped_column(db.String(10), nullable=False)
-    minutes_late: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
+    )  # Chiave esterna verso Student
+    date: Mapped[_date] = mapped_column(db.Date, nullable=False)  # Data
+    status: Mapped[str] = mapped_column(db.String(10), nullable=False)  # Stato presenza
+    minutes_late: Mapped[int] = mapped_column(
+        db.Integer, nullable=False, default=0
+    )  # Minuti di ritardo
 
-    student = relationship("Student", back_populates="attendance_records")
+    student = relationship(
+        "Student", back_populates="attendance_records"
+    )  # Relazione inversa
 
     def __init__(
         self,
@@ -164,49 +193,41 @@ class Attendance(db.Model):
 
 # ============================================
 #  2: Implementa la classe User
-# - Deve ereditare da UserMixin
-# - Deve avere un costruttore che accetta username
-# - Deve impostare self.id con lo username
-# - Deve impostare self.name dal database users_db
 # ============================================
 
 
-# SCRIVI IL TUO CODICE QUI
-class User(UserMixin):
+class User(UserMixin):  # Eredita da UserMixin per compatibilità Flask-Login
     def __init__(self, username):
-        self.id = username
-        self.name = users_db[username]["name"]
+        self.id = username  # Imposta l'id come username
+        self.name = users_db[username]["name"]  # Recupera il nome dal database utenti
 
 
 # ============================================
-
 
 # ============================================
 # 3: Implementa la funzione user_loader
-# - Usa il decoratore @login_manager.user_loader
-# - Controlla se username esiste in users_db
-# - Ritorna un oggetto User se esiste, None altrimenti
 # ============================================
 
 
-# SCRIVI IL TUO CODICE QUI
 @login_manager.user_loader
 def user_loader(username):
-    if username in users_db:
-        return User(username)
-    return None
+    if username in users_db:  # Controlla se l'utente esiste
+        return User(username)  # Ritorna un oggetto User
+    return None  # Altrimenti None
 
 
 # ============================================
 
 
+# Funzione di utilità per il parsing della data
 def parse_date_yyyy_mm_dd(s):
     try:
-        return datetime.strptime(s, "%Y-%m-%d").date()
+        return datetime.strptime(s, "%Y-%m-%d").date()  # Converte stringa in data
     except Exception:
-        return None
+        return None  # Se errore, ritorna None
 
 
+# Converte uno studente in dizionario
 def _student_to_dict(student: Student) -> dict:
     return {
         "id": student.id,
@@ -215,6 +236,7 @@ def _student_to_dict(student: Student) -> dict:
     }
 
 
+# Converte un voto in dizionario
 def _grade_to_dict(grade: Grade) -> dict:
     return {
         "id": grade.id,
@@ -225,6 +247,7 @@ def _grade_to_dict(grade: Grade) -> dict:
     }
 
 
+# Converte una presenza in dizionario
 def _attendance_to_dict(attendance: Attendance) -> dict:
     return {
         "id": attendance.id,
@@ -235,14 +258,17 @@ def _attendance_to_dict(attendance: Attendance) -> dict:
     }
 
 
+# Calcola un riepilogo dei voti e delle presenze
 def compute_summary(grades: list[dict], attendance: list[dict]) -> dict:
-    avg = sum(g.get("value", 0) for g in grades) / len(grades) if grades else 0.0
-    present = sum(1 for a in attendance if a.get("status") == "present")
-    absent = sum(1 for a in attendance if a.get("status") == "absent")
-    late = sum(1 for a in attendance if a.get("status") == "late")
+    avg = (
+        sum(g.get("value", 0) for g in grades) / len(grades) if grades else 0.0
+    )  # Media voti
+    present = sum(1 for a in attendance if a.get("status") == "present")  # Presenze
+    absent = sum(1 for a in attendance if a.get("status") == "absent")  # Assenze
+    late = sum(1 for a in attendance if a.get("status") == "late")  # Ritardi
     minutes_late = sum(
         int(a.get("minutes_late") or 0) for a in attendance if a.get("status") == "late"
-    )
+    )  # Minuti di ritardo totali
     return {
         "avg": avg,
         "count": len(grades),
@@ -253,6 +279,7 @@ def compute_summary(grades: list[dict], attendance: list[dict]) -> dict:
     }
 
 
+# Carica statistiche globali
 def _load_stats() -> dict:
     return {
         "total_students": Student.query.count(),
@@ -261,18 +288,19 @@ def _load_stats() -> dict:
     }
 
 
+# Popola il database da un file JSON (se vuoto)
 def _seed_data_from_json() -> None:
     if Student.query.first() is not None:
-        return
+        return  # Se ci sono già studenti, non fa nulla
     if not os.path.exists(DB_PATH):
-        return
+        return  # Se il file non esiste, non fa nulla
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
-            raw = json.load(f)
+            raw = json.load(f)  # Carica dati dal file JSON
     except (OSError, JSONDecodeError):
-        return
+        return  # Se errore, non fa nulla
 
-    for student_data in raw.get("students", []):
+    for student_data in raw.get("students", []):  # Inserisce studenti
         student = Student(
             id=student_data.get("id"),
             name=student_data.get("name"),
@@ -280,9 +308,9 @@ def _seed_data_from_json() -> None:
         )
         db.session.add(student)
 
-    db.session.flush()
+    db.session.flush()  # Salva temporaneamente per ottenere gli id
 
-    for grade_data in raw.get("grades", []):
+    for grade_data in raw.get("grades", []):  # Inserisce voti
         grade_date = parse_date_yyyy_mm_dd(grade_data.get("date", ""))
         grade = Grade(
             id=grade_data.get("id"),
@@ -295,7 +323,7 @@ def _seed_data_from_json() -> None:
 
     db.session.flush()
 
-    for attendance_data in raw.get("attendance", []):
+    for attendance_data in raw.get("attendance", []):  # Inserisce presenze
         attendance_date = parse_date_yyyy_mm_dd(attendance_data.get("date", ""))
         attendance = Attendance(
             id=attendance_data.get("id"),
@@ -306,8 +334,9 @@ def _seed_data_from_json() -> None:
         )
         db.session.add(attendance)
 
-    db.session.commit()
+    db.session.commit()  # Salva tutto nel database
 
+    # Aggiorna sequenze per PostgreSQL (autoincrement id)
     if db.engine.dialect.name == "postgresql":
         tables = (
             Student.__tablename__,
@@ -329,45 +358,38 @@ def _seed_data_from_json() -> None:
 @app.route("/")
 def index():
     """Homepage pubblica - NON richiede autenticazione"""
-    stats = _load_stats()
-    return render_template("index.html", stats=stats)
+    stats = _load_stats()  # Carica statistiche
+    return render_template("index.html", stats=stats)  # Mostra la homepage
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Route di login"""
-    if current_user.is_authenticated:
+    if current_user.is_authenticated:  # Se già autenticato, vai in dashboard
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
-        # ============================================
-        # TODO 4: Implementa la logica di login POST
-        # - Recupera username e password dal form
-        # - Verifica se l'utente esiste nel database
-        # - Verifica la password con check_password_hash
-        # - Se corrette: login_user() e redirect a dashboard
-        # - Se errate: flash message di errore e resta su login
-        # ============================================
-
+        # Recupera username e password dal form
         username = request.form["username"]
         password = request.form["password"]
         remember_me = bool(request.form.get("remember", False))
+        # Verifica credenziali
         if username in users_db and check_password_hash(
             users_db[username]["password"], password
         ):
             user = User(username)
-            login_user(user, remember=remember_me)
+            login_user(user, remember=remember_me)  # Effettua login
             flash("Login effettuato con successo!", "success")
             next_page = request.args.get("next")
-            return redirect(next_page or url_for("dashboard"))
+            return redirect(next_page or url_for("dashboard"))  # Redirect
         else:
-            flash("Credenziali non valide. Riprova.", "danger")
+            flash("Credenziali non valide. Riprova.", "danger")  # Errore
 
-    return render_template("login.html")
+    return render_template("login.html")  # Mostra form login
 
 
 @app.route("/dashboard")
-@login_required
+@login_required  # Richiede autenticazione
 def dashboard():
     """Dashboard utente - Richiede autenticazione"""
     stats = _load_stats()
@@ -375,33 +397,28 @@ def dashboard():
 
 
 # ============================================
-# TODO 5: Implementa la route di logout
-# - Usa il decoratore @login_required
-# - Chiama logout_user()
-# - Redirect alla homepage
+# 5: Implementa la route di logout
 # ============================================
 
 
 @app.route("/logout")
-@login_required
+@login_required  # Richiede autenticazione
 def logout():
-    logout_user()
-    return redirect(url_for("index"))
+    logout_user()  # Effettua logout
+    return redirect(url_for("index"))  # Torna alla homepage
 
 
 # ============================================
-
 
 # --- Routes Gestione Studenti ---
 
 # ============================================
-# TODO 6: Proteggi le seguenti route con @login_required
-# Aggiungi il decoratore @login_required PRIMA di ogni route
+# 6: Proteggi le seguenti route con @login_required
 # ============================================
 
 
 @app.get("/students")
-@login_required
+@login_required  # Richiede autenticazione
 def students_list():
     """Lista studenti"""
     students = [
@@ -412,7 +429,7 @@ def students_list():
 
 
 @app.get("/students/<int:student_id>")
-@login_required
+@login_required  # Richiede autenticazione
 def student_detail(student_id):
     """Dettaglio studente"""
     student = Student.query.get(student_id)
@@ -444,7 +461,7 @@ def student_detail(student_id):
 
 
 @app.get("/students/<int:student_id>/grade/new")
-@login_required
+@login_required  # Richiede autenticazione
 def new_grade(student_id):
     """Form nuovo voto"""
     student = Student.query.get(student_id)
@@ -460,7 +477,7 @@ def new_grade(student_id):
 
 
 @app.post("/students/<int:student_id>/grade/new")
-@login_required
+@login_required  # Richiede autenticazione
 def create_grade(student_id):
     """Crea nuovo voto"""
     student = Student.query.get(student_id)
@@ -513,7 +530,7 @@ def create_grade(student_id):
 
 
 @app.get("/students/<int:student_id>/attendance/new")
-@login_required
+@login_required  # Richiede autenticazione
 def new_attendance(student_id):
     """Form nuova presenza"""
     student = Student.query.get(student_id)
@@ -529,7 +546,7 @@ def new_attendance(student_id):
 
 
 @app.post("/students/<int:student_id>/attendance/new")
-@login_required
+@login_required  # Richiede autenticazione
 def create_attendance(student_id):
     """Crea nuova presenza"""
     student = Student.query.get(student_id)
@@ -616,10 +633,11 @@ def api_student(student_id):
     )
 
 
+# Crea le tabelle e popola il database se necessario
 with app.app_context():
-    db.create_all()
-    _seed_data_from_json()
+    db.create_all()  # Crea le tabelle se non esistono
+    _seed_data_from_json()  # Popola il database da file JSON se necessario
 
-
+# Avvia l'applicazione Flask in modalità debug
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)  # Avvia il server Flask
