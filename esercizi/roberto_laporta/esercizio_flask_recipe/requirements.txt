@@ -1,0 +1,9 @@
+flask
+flask-login
+requests
+flask-sqlalchemy
+pyjwt
+werkzeug
+routes
+psycopg2-binary
+pydantic
