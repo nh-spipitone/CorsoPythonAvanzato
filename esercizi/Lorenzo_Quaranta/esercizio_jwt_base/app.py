@@ -37,11 +37,13 @@ USERS: Dict[str, Dict[str, Any]] = {
 NOTES: Dict[str, List[str]] = {username: [] for username in USERS}
 JWT_ERRORS = (jwt.ExpiredSignatureError, jwt.InvalidTokenError)
 
-
+#ci sta un probabile problema con il parametro exp, nonso se sia per i fusi orari o per altre ragioni
 def create_jwt(username: str) -> str:
     """TODO: costruisci e firma un JWT con claim personalizzati."""
-    issued_at = datetime.now(timezone.utc)
+    issued_at = datetime.now(tz=timezone.utc)
     expires_at = issued_at + TOKEN_EXPIRATION
+    print(issued_at)
+    print(expires_at)
     #Crea un payload con username, ruolo, email, is_premium, iat, exp e firma con jwt.encode. 
     # Suggerimento: iat={issued_at.isoformat()}, exp={expires_at.isoformat()}
     payload={
@@ -59,7 +61,11 @@ def decode_jwt(token: str) -> Optional[Dict[str, Any]]:
     """TODO: verifica il token e restituisci il payload oppure None."""
     try:
         data = jwt.decode(token, app.config["SECRET_KEY"], JWT_ALGORITHM)
-    except JWT_ERRORS:
+    except jwt.ExpiredSignatureError as error:
+        print(f"ExpiredSignatureError:{error}")
+        return None
+    except jwt.InvalidTokenError:
+        print("ExpiredSignatureError")
         return None
     return data
 
@@ -172,6 +178,9 @@ def login() -> Any:
     email=current_user["email"]
     role=current_user["role"]
     token=create_jwt(username)
+    test=decode_jwt(token)
+    if not test:
+        print("forse jwt_decode ha problemi")
     return jsonify(
         {
         "token":token,
@@ -196,7 +205,7 @@ def me(current_user: Dict[str, Any]) -> Any:
     email=current_user["email"]
     role=current_user["role"]
     expires=current_user["exp"]
-    seconds_to_exp=datetime.fromisoformat(expires) - datetime.now(timezone.utc)
+    seconds_to_exp=datetime.fromisoformat(expires) - datetime.now(tz=timezone.utc)
     seconds_to_exp=seconds_to_exp.total_seconds()
 
     return jsonify({
