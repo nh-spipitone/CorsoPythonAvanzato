@@ -1,6 +1,8 @@
+README.md
 pyproject.toml
 corso_python_avanzato.egg-info/PKG-INFO
 corso_python_avanzato.egg-info/SOURCES.txt
 corso_python_avanzato.egg-info/dependency_links.txt
 corso_python_avanzato.egg-info/requires.txt
 corso_python_avanzato.egg-info/top_level.txt
+tests/test_sanitization.py
