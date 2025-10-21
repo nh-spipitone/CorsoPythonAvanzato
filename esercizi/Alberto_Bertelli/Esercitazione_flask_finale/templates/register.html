@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrazione - Ricette</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h2>🧍‍♀️ Registrati</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="username" placeholder="Scegli username" required>
+        <input type="password" name="password" placeholder="Scegli password" required>
+        <button type="submit">Crea account</button>
+    </form>
+
+    <p>Hai già un account? <a href="{{ url_for('login') }}">Accedi qui</a></p>
+</div>
+</body>
+</html>

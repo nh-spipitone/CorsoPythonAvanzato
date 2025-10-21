@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Ricette</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h2>👋 Benvenuto {{ current_user }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <h3>➕ Aggiungi una nuova ricetta</h3>
+    <form method="POST">
+        <input type="text" name="titolo" placeholder="Titolo" required>
+        <textarea name="descrizione" placeholder="Descrizione" required></textarea>
+        <textarea name="ingredienti" placeholder="Ingredienti" required></textarea>
+        <textarea name="procedimento" placeholder="Procedimento" required></textarea>
+        <button type="submit">Crea ricetta</button>
+    </form>
+
+    <h3>📚 Le tue ricette</h3>
+    {% if recipes %}
+        {% for r in recipes %}
+            <div class="titolo">
+                <h4>{{ r.title }}</h4>
+                <p><b>Descrizione:</b> {{ r.descrizione }}</p>
+                <p><b>Ingredienti:</b> {{ r.ingredienti }}</p>
+                <p><b>Procedimento:</b> {{ r.procedimento }}</p>
+                <small>Creata il {{ r.created_at }}</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Nessuna ricetta ancora!</p>
+    {% endif %}
+
+    <a href="{{ url_for('logout') }}">🚪 Logout</a>
+</div>
+</body>
+</html>
