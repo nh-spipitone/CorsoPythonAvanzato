@@ -11,9 +11,10 @@ class cronometro(tk.Tk):
         self.minutes=tk.IntVar(value=0)
         self.job=None
         self.running=False
-        empty_list=[]
-        self.laps=tk.Variable(value=empty_list)
-        self.lapbox=tk.Listbox(self,listvariable=self.laps).pack()
+        
+        self.laps=tk.Label(self,text="Laps:").pack()
+        self.lapbox= tk.Listbox(self)
+        self.lapbox.pack()
 
 
         self.timer_txt=tk.StringVar(value="00:00.0")
@@ -60,15 +61,13 @@ class cronometro(tk.Tk):
             self.seconds.set(0)
             self.minutes.set(0)
             self.timer_txt.set("00:00.0")
-            empty_list=[]
-            self.laps.set(empty_list)
+            self.lapbox.delete(0,tk.END)
             self.after_cancel(self.job)
 
     def add_to_laps(self):
         time=self.timer_txt.get().strip()
-        laps_list=self.laps.get()
-        laps_list.append(time)
-        self.laps.set(laps_list)
+        self.lapbox.insert(tk.END,time)
+
 
 
 
