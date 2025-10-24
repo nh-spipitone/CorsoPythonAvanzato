@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}OTP{% endblock %}
+{% block subtitle %} Inserisci il codice che ti è stato inviato{% endblock %}
+{% block content %}
+<h2>Verifica OTP</h2>
+<form method="post" action="{{ url_for('otp_post') }}">
+<label>Codice OTP</label>
+<input name="code" type="text" inputmode="numeric" pattern="\d{6}" placeholder="6 cifre" required>
+<button type="submit">Verifica</button>
+</form>
+<p class="muted">Apri l'Authenticator Tkinter per ottenere il codice a tempo.</p>
+{% endblock %}

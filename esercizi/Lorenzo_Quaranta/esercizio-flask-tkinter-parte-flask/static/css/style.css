@@ -1,0 +1,26 @@
+body {
+  text-align: center;
+}
+.alerts {
+  margin: 12px 0;
+}
+.alert {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.alert.error {
+  background: #ffe5e5;
+  color: #7a0011;
+  border: 1px solid #ffb3b3;
+}
+.alert.success {
+  background: #e9ffef;
+  color: #084d1c;
+  border: 1px solid #bdf0cb;
+}
+.alert.info {
+  background: #eaf3ff;
+  color: #0b2a83;
+  border: 1px solid #c7dbff;
+}
