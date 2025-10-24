@@ -53,8 +53,8 @@ def auth():
     with get_db() as db:
         row=db.execute("SELECT id,username,password FROM USERS WHERE username=?",(user)).fetchone()
         if row:
-            retrieved_password=row["password"]
-            user_id=row['id']
+            retrieved_password=row["password"][0]
+            user_id=row['id'][0]
             if password==retrieved_password:
                 session['pending_userid']=user_id
                 return redirect(url_for('otp'))
