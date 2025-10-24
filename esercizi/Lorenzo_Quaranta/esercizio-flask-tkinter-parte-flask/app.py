@@ -8,8 +8,11 @@ check_password_hash,
 import pyotp
 
 app = Flask(__name__)
+app.config["SECRET_KEY"]="change-me"
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "app.db")
+
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -39,7 +42,10 @@ with app.app_context():
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    if session.get("userid"):
+        return render_template("index.html")
+    else: 
+        return redirect(url_for("login"))
 
 @app.get("/login")
 def login():
@@ -49,15 +55,16 @@ def login():
 def auth():
     user=request.form["username"]
     password=request.form["password"]
+    print(user)
     #TODO:hashing password
     with get_db() as db:
-        row=db.execute("SELECT id,username,password FROM USERS WHERE username=?",(user)).fetchone()
+        row=db.execute("SELECT id,username,password FROM USERS WHERE username=?",(user,)).fetchone()
         if row:
-            retrieved_password=row["password"][0]
-            user_id=row['id'][0]
+            retrieved_password=row["password"]
+            user_id=row['id']
             if password==retrieved_password:
                 session['pending_userid']=user_id
-                return redirect(url_for('otp'))
+                return redirect(url_for('/otp'))
         flash("credenziali non valide","error")
         return redirect(url_for('login'))
     
