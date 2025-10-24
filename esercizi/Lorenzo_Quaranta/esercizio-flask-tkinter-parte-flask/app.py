@@ -10,7 +10,7 @@ import pyotp
 app = Flask(__name__)
 app.config["SECRET_KEY"]="change-me"
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "app.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "app_db.db")
 
 
 
@@ -24,7 +24,7 @@ def init_db():
         db.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
+            username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             secret_key TEXT NOT NULL
         );
@@ -79,8 +79,9 @@ def otp():
 def otp_post():
     if session["pending_userid"]:
         code=request.form["code"]
+        user_id=str(session["pending_userid"])
         with get_db() as db:
-            row=db.execute("SELECT secret_key FROM USERS WHERE id=?",(session["pending_userid"])).fetchone()
+            row=db.execute("SELECT secret_key FROM USERS WHERE id=?",(user_id)).fetchone()
             if row:
                 key=row["secret_key"]
                 totp = pyotp.TOTP(key)
@@ -99,7 +100,8 @@ def otp_post():
         return redirect(url_for('login'))
 
     
-
+if __name__=="__main__":
+    app.run(debug=True)
         
 
 
