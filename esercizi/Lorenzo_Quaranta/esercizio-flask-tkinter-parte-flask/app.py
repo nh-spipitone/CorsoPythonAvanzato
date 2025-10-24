@@ -64,18 +64,18 @@ def auth():
             user_id=row['id']
             if password==retrieved_password:
                 session['pending_userid']=user_id
-                return redirect(url_for('/otp'))
+                return redirect(url_for("otp"))
         flash("credenziali non valide","error")
         return redirect(url_for('login'))
     
-app.get("/otp")
+@app.get("/otp")
 def otp():
     if session["pending_userid"]:
         return render_template("otp.html")
     else:
         return redirect(url_for('login'))
 
-app.post("/otp")
+@app.post("/otp")
 def otp_post():
     if session["pending_userid"]:
         code=request.form["code"]
