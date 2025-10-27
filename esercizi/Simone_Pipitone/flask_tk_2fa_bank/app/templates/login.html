@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Login — Mini Banca{% endblock %}
+{% block content %}
+  <h2>Accesso</h2>
+  <form method="post" action="{{ url_for('auth.login_post') }}">
+    <label>Username</label>
+    <input name="username" type="text" required>
+    <label>Password</label>
+    <input name="password" type="password" required>
+    <button type="submit">Continua</button>
+  </form>
+  <p class="muted">Dopo il login ti verrà richiesto il codice OTP dall'Authenticator Tkinter.</p>
+{% endblock %}

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Miei Todo - Todo List JWT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .username {
+            color: #764ba2;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .add-todo {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .todos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .todo-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        
+        .todo-item.completed {
+            opacity: 0.7;
+            border-left-color: #28a745;
+        }
+        
+        .todo-content {
+            flex: 1;
+        }
+        
+        .todo-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .todo-title.completed {
+            text-decoration: line-through;
+            color: #666;
+        }
+        
+        .todo-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .todo-meta {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .todo-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ I Miei Todo</h1>
+            <div class="user-info">
+                <span class="username" id="username"></span>
+                <button class="btn btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="add-todo">
+            <h2 style="color: #764ba2; margin-bottom: 15px;">➕ Aggiungi Todo</h2>
+            <form id="addTodoForm">
+                <div class="form-group">
+                    <label for="title">Titolo *</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descrizione</label>
+                    <textarea id="description"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Aggiungi Todo</button>
+            </form>
+        </div>
+        
+        <h2 style="color: #764ba2; margin-bottom: 15px;">📋 Lista Todo</h2>
+        <div id="todosList" class="todos-list"></div>
+    </div>
+    
+    <script>
+        // Verificare se l'utente è autenticato
+        const token = localStorage.getItem('jwt_token');
+        const username = localStorage.getItem('username');
+        
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        document.getElementById('username').textContent = `👤 ${username}`;
+        
+        // Funzione per mostrare messaggi
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Funzione per effettuare richieste autenticate
+        async function authenticatedFetch(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                showMessage('Sessione scaduta. Effettua nuovamente il login.', 'error');
+                setTimeout(() => {
+                    logout();
+                }, 2000);
+                throw new Error('Unauthorized');
+            }
+            
+            return response;
+        }
+        
+        // Carica i todo
+        async function loadTodos() {
+            try {
+                const response = await authenticatedFetch('/api/todos');
+                const data = await response.json();
+                
+                const todosList = document.getElementById('todosList');
+                
+                if (data.todos.length === 0) {
+                    todosList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>Nessun todo presente. Aggiungi il tuo primo todo!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                todosList.innerHTML = data.todos.map(todo => `
+                    <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                        <div class="todo-content">
+                            <div class="todo-title ${todo.completed ? 'completed' : ''}">${todo.title}</div>
+                            <div class="todo-description">${todo.description || ''}</div>
+                            <div class="todo-meta">Creato: ${new Date(todo.created_at).toLocaleString('it-IT')}</div>
+                        </div>
+                        <div class="todo-actions">
+                            <button class="btn ${todo.completed ? 'btn-warning' : 'btn-success'}" 
+                                    onclick="toggleTodo(${todo.id}, ${!todo.completed})">
+                                ${todo.completed ? '↩️' : '✓'}
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteTodo(${todo.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Errore nel caricamento dei todo:', error);
+            }
+        }
+        
+        // Aggiungi un nuovo todo
+        document.getElementById('addTodoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            
+            try {
+                const response = await authenticatedFetch('/api/todos', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description })
+                });
+                
+                if (response.ok) {
+                    showMessage('Todo aggiunto con successo!', 'success');
+                    document.getElementById('addTodoForm').reset();
+                    loadTodos();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.message || 'Errore nell\'aggiunta del todo', 'error');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+            }
+        });
+        
+        // Toggle completamento todo
+        async function toggleTodo(id, completed) {
+            try {
+                const response = await authenticatedFetch(`/api/todos/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ completed })
+                });
+                
+                if (response.ok) {
+                    showMessage(completed ? 'Todo completato!' : 'Todo riaperto!', 'success');
+                    loadTodos();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.message || 'Errore nell\'aggiornamento del todo', 'error');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+            }
+        }
+        
+        // Elimina un todo
+        async function deleteTodo(id) {
+            if (!confirm('Sei sicuro di voler eliminare questo todo?')) {
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`/api/todos/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('Todo eliminato!', 'success');
+                    loadTodos();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.message || 'Errore nell\'eliminazione del todo', 'error');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+            }
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('username');
+            window.location.href = '/login';
+        }
+        
+        // Carica i todo all'avvio
+        loadTodos();
+    </script>
+</body>
+</html>

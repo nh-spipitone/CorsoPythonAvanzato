@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Mini Banca{% endblock %}</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #f6f7f9; }
+    header { background: #121826; color: #fff; padding: 12px 16px; }
+    main { max-width: 900px; margin: 24px auto; background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card { flex: 1; min-width: 260px; background: #fafbfc; border: 1px solid #e6e8eb; padding: 12px; border-radius: 10px; }
+    form { display: grid; gap: 8px; }
+    input[type="text"], input[type="password"], input[type="number"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #cfd6df; }
+    button { padding: 8px 12px; border: 0; background: #2b63ff; color: white; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #244fe0; }
+    .alerts { margin: 12px 0; }
+    .alert { padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+    .alert.error { background: #ffe5e5; color:#7a0011; border:1px solid #ffb3b3; }
+    .alert.success { background: #e9ffef; color:#084d1c; border:1px solid #bdf0cb; }
+    .alert.info { background: #eaf3ff; color:#0b2a83; border:1px solid #c7dbff; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
+    .muted { color: #777; }
+    .right { text-align: right; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Mini Banca</strong>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        <div class="alerts">
+          {% for cat,msg in messages %}
+            <div class="alert {{cat}}">{{msg}}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
