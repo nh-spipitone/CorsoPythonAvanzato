@@ -4,13 +4,14 @@ from pathlib import Path
 from PIL import Image, ImageTk
 
 
-BGPATH = Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
+BGPATH = Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
 POKEMONPATHS = [
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
 ]
 THUMB_SIZE = (120, 120)
+
 
 
 def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Image.Image:
@@ -27,8 +28,9 @@ def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Imag
 
 class Pokemon:
 
-    def __init__(self, nome, hp, attacco):
+    def __init__(self, nome,tipo, hp, attacco):
         self.nome = nome
+        self.tipo = tipo
         self.hp = hp
         self.attacco = attacco
 
@@ -38,6 +40,11 @@ class Pokemon:
     def attacca(self):
         pass
 
+POKEMON = [
+    Pokemon("Treecko","Erba", 50, 10),
+    Pokemon("Torchic","Fuoco", 45, 12),
+    Pokemon("Mudkip","Acqua", 55, 9)
+]
 
 class Battaglia_pokemon(tk.Tk):
 
@@ -77,6 +84,7 @@ class Battaglia_pokemon(tk.Tk):
     def open_preview(self, idx, bg):
         if idx < len(POKEMONPATHS):
             pokemon_path = POKEMONPATHS[idx]
+            pokemon = POKEMON[idx]
             card = compose_card(bg, pokemon_path, size=(100, 100))
             card_tk = ImageTk.PhotoImage(card)
             top = tk.Toplevel(self)
@@ -85,6 +93,14 @@ class Battaglia_pokemon(tk.Tk):
             label = tk.Label(top, image=card_tk)
             label.pack(anchor="center", expand=True)
             top.img_ref = card_tk
+            lbl_nome = tk.Label(top, text=pokemon.nome, font=("Arial", 16, "bold"))
+            lbl_nome.pack(pady=5)
+            lbl_tipo = tk.Label(top, text=f"Tipo: {pokemon.tipo}", font=("Arial", 12))
+            lbl_tipo.pack()
+            lbl_hp = tk.Label(top, text=f"HP: {pokemon.hp}", font=("Arial", 12))
+            lbl_hp.pack(pady=(10,10))
+            lbl_attacco = tk.Label(top, text=f"Attacco: {pokemon.attacco}", font=("Arial", 12))
+            lbl_attacco.pack(pady=(0,10))
 
 
 app = Battaglia_pokemon()
