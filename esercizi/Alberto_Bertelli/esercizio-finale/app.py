@@ -7,20 +7,30 @@ from PIL import Image, ImageTk
 BGPATH = Path(
     r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png"
 )
-POKEMONPATHS=[r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"]
+POKEMONPATHS = [
+    Path(
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"
+    ),
+    Path(
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"
+    ),
+    Path(
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"
+    ),
+]
 THUMB_SIZE = (120, 120)
 
+
 def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Image.Image:
-    bg=bg_img.copy().convert("RGBA")
+    bg = bg_img.copy().convert("RGBA")
     if size:
-        bg=bg.resize(size,Image.LANCZOS)
+        bg = bg.resize(size, Image.LANCZOS)
     if char_path and char_path.exists():
-        pokemon=Image.open(char_path).convert("RGBA")
+        pokemon = Image.open(char_path).convert("RGBA")
         if size:
-            pokemon= pokemon.resize(size,Image.LANCZOS)
+            pokemon = pokemon.resize(size, Image.LANCZOS)
         bg = Image.alpha_composite(bg, pokemon)
     return bg
-
 
 
 class Pokemon:
@@ -63,24 +73,22 @@ class Battaglia_pokemon(tk.Tk):
         self.bg_tk = ImageTk.PhotoImage(bg)
         for i in range(3):
             btn = tk.Button(
-                row, image=self.bg_tk, bd=0, highlightthickness=0, cursor="hand2",command=lambda idx=i: self.open_preview(idx, bg_full)
+                row,
+                image=self.bg_tk,
+                bd=0,
+                highlightthickness=0,
+                cursor="hand2",
+                command=lambda idx=i: self.open_preview(idx, bg_full),
             )
             btn.grid(row=0, column=i + 1, padx=12, pady=12)
 
-    def open_preview(self,idx,bg):
-        if idx <len(POKEMONPATHS):
-            pokemon_path=POKEMONPATHS[idx]
-            card=compose_card(bg,pokemon_path)
-            card_tk=ImageTk.PhotoImage(card)
-            top=tk.Toplevel(self)
-            top.img_ref=card_tk
-            
-
-
-
-
-
-
+    def open_preview(self, idx, bg):
+        if idx < len(POKEMONPATHS):
+            pokemon_path = POKEMONPATHS[idx]
+            card = compose_card(bg, pokemon_path)
+            card_tk = ImageTk.PhotoImage(card)
+            top = tk.Toplevel(self)
+            top.img_ref = card_tk
 
 
 app = Battaglia_pokemon()
