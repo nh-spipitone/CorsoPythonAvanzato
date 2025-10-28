@@ -4,19 +4,11 @@ from pathlib import Path
 from PIL import Image, ImageTk
 
 
-BGPATH = Path(
-    r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png"
-)
+BGPATH = Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
 POKEMONPATHS = [
-    Path(
-        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"
-    ),
-    Path(
-        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"
-    ),
-    Path(
-        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"
-    ),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
 ]
 THUMB_SIZE = (120, 120)
 
@@ -24,11 +16,11 @@ THUMB_SIZE = (120, 120)
 def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Image.Image:
     bg = bg_img.copy().convert("RGBA")
     if size:
-        bg = bg.resize(size, Image.LANCZOS)
+        bg = bg.resize(size, Image.Resampling.LANCZOS)
     if char_path and char_path.exists():
         pokemon = Image.open(char_path).convert("RGBA")
-        if size:
-            pokemon = pokemon.resize(size, Image.LANCZOS)
+        # Always resize pokemon to match bg size
+        pokemon = pokemon.resize(bg.size, Image.Resampling.LANCZOS)
         bg = Image.alpha_composite(bg, pokemon)
     return bg
 
@@ -85,9 +77,13 @@ class Battaglia_pokemon(tk.Tk):
     def open_preview(self, idx, bg):
         if idx < len(POKEMONPATHS):
             pokemon_path = POKEMONPATHS[idx]
-            card = compose_card(bg, pokemon_path)
+            card = compose_card(bg, pokemon_path, size=(100, 100))
             card_tk = ImageTk.PhotoImage(card)
             top = tk.Toplevel(self)
+            top.title("Anteprima Pokemon")
+            top.geometry("300x300")
+            label = tk.Label(top, image=card_tk)
+            label.pack(anchor="center", expand=True)
             top.img_ref = card_tk
 
 
