@@ -6,21 +6,21 @@ import sqlite3
 
 
 DB_FILE = "gioco.db"
-BGPATH = Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
+BGPATH = Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
 POKEMONPATHS = [
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
 ]
 
 POKEMONBACKPATHS = [
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png"),
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png"),
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png"),
 ]
 
 POKEMONENEMYPATHS = [
-    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\poochyena.png"),
+    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\poochyena.png"),
 ]
 THUMB_SIZE = (120, 120)
 
@@ -39,7 +39,7 @@ def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Imag
 
 class Pokemon:
 
-    def __init__(self, nome, livello, tipo, hp, attacco,sprite,back_sprite):
+    def __init__(self, nome, livello, tipo, hp, attacco, sprite, back_sprite):
         self.nome = nome
         self.livello = livello
         self.tipo = tipo
@@ -57,9 +57,33 @@ class Pokemon:
 
 
 POKEMON = [
-    Pokemon("Treecko", 5, "Erba", 50, 10,r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png"),
-    Pokemon("Torchic", 5, "Fuoco", 45, 12,r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png"),
-    Pokemon("Mudkip", 5, "Acqua", 55, 9,r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png",r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png"),
+    Pokemon(
+        "Treecko",
+        5,
+        "Erba",
+        50,
+        10,
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png",
+    ),
+    Pokemon(
+        "Torchic",
+        5,
+        "Fuoco",
+        45,
+        12,
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png",
+    ),
+    Pokemon(
+        "Mudkip",
+        5,
+        "Acqua",
+        55,
+        9,
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png",
+        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png",
+    ),
 ]
 
 
@@ -171,13 +195,22 @@ class Battaglia_pokemon(tk.Tk):
             INSERT INTO scelta (id,nome,livello,tipo,hp,attacco,sprite,back_sprite)
             VALUES(1, ?, ?, ?, ?, ?, ?, ?)
         """,
-            (pokemon.nome, pokemon.livello, pokemon.tipo, pokemon.hp, pokemon.attacco, pokemon.sprite, pokemon.back_sprite),
+            (
+                pokemon.nome,
+                pokemon.livello,
+                pokemon.tipo,
+                pokemon.hp,
+                pokemon.attacco,
+                pokemon.sprite,
+                pokemon.back_sprite,
+            ),
         )
 
         conn.commit()
         conn.close()
 
         messagebox.showinfo("Secelta effettuata", f"Hai scelto{pokemon.nome}")
+        self.carica_salvataggio()
         window.destroy()
 
     def open_battle_preview(self, pokemonEnemy):
@@ -186,11 +219,15 @@ class Battaglia_pokemon(tk.Tk):
     def carica_salvataggio(self):
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
-        cur.execute("SELECT nome,livello,tipo,hp,attacco,sprite,back_sprite FROM scelta WHERE id=1")
+        cur.execute(
+            "SELECT nome,livello,tipo,hp,attacco,sprite,back_sprite FROM scelta WHERE id=1"
+        )
         row = cur.fetchone()
         conn.close()
         if row:
-            self.pokemon_scelto = Pokemon(row[0], row[1], row[2], row[3], row[4],row[5],row[6])
+            self.pokemon_scelto = Pokemon(
+                row[0], row[1], row[2], row[3], row[4], row[5], row[6]
+            )
             print(f"Pokemon recuperato:{self.pokemon_scelto.nome}")
 
 
@@ -199,6 +236,7 @@ class BattleWindow(tk.Toplevel):
         super().__init__(master)
         self.title("Battaglia Pokemon")
         self.resizable(False, False)
+        self._img_cache = []
         self.configure(bg="#1b1d23")
         if not pokemonPlayer:
             messagebox.showerror(
@@ -214,7 +252,12 @@ class BattleWindow(tk.Toplevel):
         style.configure("Text.TLabel", background="#0e1116", foreground="#ffffff")
         style.configure("Info.TLabel", background="#2b2f3a", foreground="#ffffff")
         style.configure("InfoValue.TLabel", background="#2b2f3a", foreground="#c7ffd1")
-        style.configure("HP.Horizontal.TProgressbar", thickness=12,background="#4caf50",troughcolor="#2b2f3a")
+        style.configure(
+            "HP.Horizontal.TProgressbar",
+            thickness=12,
+            background="#4caf50",
+            troughcolor="#2b2f3a",
+        )
         style.map("TButton", focuscolor=[("!focus", "#000000")])
 
         main = ttk.Frame(self, padding=12, style="Battle.TFrame")
@@ -236,7 +279,7 @@ class BattleWindow(tk.Toplevel):
         self.canvas.create_window(
             340, 220, anchor="nw", window=player_info
         )  # bottom-right
-        self.place_sprite(self.canvas,pokemonPlayer.back_sprite,200,200)
+        self.place_sprite(self.canvas, pokemonPlayer.back_sprite, 200, 260)
 
     def _make_info_frame(self, parent, mon: dict) -> ttk.Frame:
         """Mini pannello con Nome/Lv + HP bar + HP numerici."""
@@ -275,14 +318,14 @@ class BattleWindow(tk.Toplevel):
         lbl_val.pack(side="left")
 
         return f
-    def place_sprite(self,canvas,path,x,y):
-        image=None
+
+    def place_sprite(self, canvas, path, x, y):
+        image = None
         if path:
-            image=tk.PhotoImage(file=Path(path))
+            image = tk.PhotoImage(file=Path(path))
+            self._img_cache.append(image)
         if image:
-            canvas.create_image(x,y,image=image)
-
-
+            canvas.create_image(x, y, image=image)
 
 
 app = Battaglia_pokemon()
