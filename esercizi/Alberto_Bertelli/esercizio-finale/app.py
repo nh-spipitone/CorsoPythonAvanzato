@@ -1,9 +1,12 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk,messagebox
 from pathlib import Path
 from PIL import Image, ImageTk
+import sqlite3
 
 
+
+DB_FILE = "gioco.db"
 BGPATH = Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
 POKEMONPATHS = [
     Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
@@ -54,9 +57,17 @@ class Battaglia_pokemon(tk.Tk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2,weight=1)
         label_seleziona = tk.Label(
             self, text="Seleziona il tuo Pokemon", font=("Times 14")
         )
+        btn_battaglia=tk.Button(self,text="Vai alla battaglia",font=("Times 14"))
+        btn_battaglia.grid(row=2,column=0,pady=(10,5),sticky="n")
+        pokemon_scelto= None
+
+        self.db()
+        self.carica_salvataggio()
+
         label_seleziona.grid(row=0, column=0, pady=(16, 8), sticky="n")
         row = tk.Frame(self)
         row.grid(row=1, column=0, padx=20, pady=12, sticky="nsew")
@@ -81,6 +92,24 @@ class Battaglia_pokemon(tk.Tk):
             )
             btn.grid(row=0, column=i + 1, padx=12, pady=12)
 
+    def db(self):
+        conn=sqlite3.connect(DB_FILE)
+        cur=conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS scelta (
+                id INTEGER PRIMARY KEY,
+                nome TEXT,
+                tipo TEXT,
+                hp INTEGER,
+                attacco INTEGER
+                )
+            """
+            )
+        conn.commit()
+        conn.close()
+
+   
+
     def open_preview(self, idx, bg):
         if idx < len(POKEMONPATHS):
             pokemon_path = POKEMONPATHS[idx]
@@ -101,6 +130,53 @@ class Battaglia_pokemon(tk.Tk):
             lbl_hp.pack(pady=(10,10))
             lbl_attacco = tk.Label(top, text=f"Attacco: {pokemon.attacco}", font=("Arial", 12))
             lbl_attacco.pack(pady=(0,10))
+            tk.Button(top,text="Vuoi questo Pokémon ?",font=("Arial", 12, "bold"),command=lambda: self.scegli_pokemon(pokemon, top)).pack(pady=20)
+
+
+    def scegli_pokemon(self,pokemon,window):
+        self.pokemon_scelto=pokemon
+        conn= sqlite3.connect(DB_FILE)
+        cur=conn.cursor()
+        cur.execute("DELETE FROM scelta")
+       
+        cur.execute("""
+            INSERT INTO scelta (id,nome,tipo,hp,attacco)
+            VALUES(1, ?, ?, ?, ?)
+        """,(pokemon.nome,pokemon.tipo,pokemon.hp,pokemon.attacco))
+        
+        conn.commit()
+        conn.close()
+        
+        messagebox.showinfo("Secelta effettuata",f"Hai scelto{pokemon.nome}")
+        window.destroy()
+
+
+    def open_battle_preview(self,pokemonEnemy):
+        BattleWindow(self,self.pokemon_scelto,pokemonEnemy)
+        
+
+
+    
+
+
+    def carica_salvataggio(self):
+        conn=sqlite3.connect(DB_FILE)
+        cur=conn.cursor()
+        cur.execute("SELECT nome,tipo,hp,attacco FROM scelta WHERE id=1")
+        row = cur.fetchone()
+        conn.close()
+        if row:
+            self.pokemon_scelto=Pokemon(row[0],row[1],row[2],row[3])
+            print(f"Pokemon recuperato:{self.pokemon_scelto.nome}")
+            
+class BattleWindow(tk.Toplevel):
+    def __init__(self,master,pokemonPlayer,pokemonEnemy):
+        self.title("Battaglia Pokemon")
+        if not pokemonPlayer:
+            messagebox.showerror("C’è un momento e un luogo per ogni cosa, ma non ora.,Scegli con calma il tuo primo pokemon")
+            self.destroy()
+        
+
 
 
 app = Battaglia_pokemon()
