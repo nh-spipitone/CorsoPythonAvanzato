@@ -178,6 +178,7 @@ class Battaglia_pokemon(tk.Tk):
         conn.close()
 
         messagebox.showinfo("Secelta effettuata", f"Hai scelto{pokemon.nome}")
+        self.carica_salvataggio()
         window.destroy()
 
     def open_battle_preview(self, pokemonEnemy):
