@@ -3,6 +3,9 @@ from tkinter import ttk, messagebox
 from pathlib import Path
 from PIL import Image, ImageTk
 import sqlite3
+from pydantic import BaseModel
+from typing import List, Literal
+import random
 
 
 DB_FILE = "gioco.db"
@@ -36,10 +39,15 @@ def compose_card(bg_img: Image.Image, char_path: Path | None, size=None) -> Imag
         bg = Image.alpha_composite(bg, pokemon)
     return bg
 
+class Mossa(BaseModel):
+    nome: str
+    potenza: int
+    precisione: int
+    tipo: Literal["Erba", "Fuoco", "Acqua", "Buio", "Normale"]
 
 class Pokemon:
 
-    def __init__(self, nome, livello, tipo, hp, attacco, sprite, back_sprite):
+    def __init__(self, nome, livello, tipo, hp, attacco, sprite, back_sprite,mosse:list[Mossa]):
         self.nome = nome
         self.livello = livello
         self.tipo = tipo
@@ -48,15 +56,38 @@ class Pokemon:
         self.attacco = attacco
         self.sprite = sprite
         self.back_sprite = back_sprite
+        self.mosse= mosse
 
     def stato(self):
         return self.hp > 0
 
-    def attacca(self,nemico):
-        danno = self.attacco
-        nemico.hp -= danno
-        return danno
+    def attacca(self,nemico,idx):
+       
+        potenza= self.mosse[idx].potenza
+        danno = self.attacco * (potenza/100)
+        seed = random.randint(0,100)
+        if seed<= self.mosse[idx].precisione:
+        
+            nemico.hp -= danno
+            return True
+        
+        return False
 
+
+
+mosse_treecko = [
+    Mossa(nome="Colpo Basso", potenza=10,precisione=70, tipo="Erba"),
+    Mossa(nome="Frustata", potenza=14,precisione=95, tipo="Erba")
+]
+mosse_torchic = [
+    Mossa(nome="Braciere", potenza=15,precisione=85, tipo="Fuoco"),
+    Mossa(nome="Graffio", potenza=10,precisione=90, tipo="Normale")
+]
+
+mosse_mudkip = [
+    Mossa(nome="Pistolacqua", potenza=13,precisione=80, tipo="Acqua"),
+    Mossa(nome="Botta", potenza=10,precisione=75, tipo="Normale")
+]
 
 POKEMON = [
     Pokemon(
@@ -67,6 +98,7 @@ POKEMON = [
         10,
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png",
+        mosse_treecko,
     ),
     Pokemon(
         "Torchic",
@@ -76,6 +108,7 @@ POKEMON = [
         12,
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png",
+        mosse_torchic,
     ),
     Pokemon(
         "Mudkip",
@@ -85,7 +118,12 @@ POKEMON = [
         9,
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png",
         r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png",
+        mosse_mudkip,
     ),
+]
+
+attacchi_poochyena = [
+    Mossa(nome="Morso", potenza=11,precisione=70, tipo="Buio")
 ]
 
 
@@ -223,7 +261,7 @@ class Battaglia_pokemon(tk.Tk):
         48,
         11,
         str(POKEMONENEMYPATHS[0]),
-        None
+        attacchi_poochyena
     ))
 
     def carica_salvataggio(self):
@@ -236,7 +274,7 @@ class Battaglia_pokemon(tk.Tk):
         conn.close()
         if row:
             self.pokemon_scelto = Pokemon(
-                row[0], row[1], row[2], row[3], row[4], row[5], row[6]
+                row[0], row[1], row[2], row[3], row[4], row[5], row[6] 
             )
             print(f"Pokemon recuperato:{self.pokemon_scelto.nome}")
 
@@ -340,6 +378,11 @@ class BattleWindow(tk.Toplevel):
             self._img_cache.append(image)
         if image:
             canvas.create_image(x, y, image=image)
+
+    def update_hp(self,hpbar,lbl_val):
+        
+
+
 
   
 
