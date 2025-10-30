@@ -88,9 +88,11 @@ class Pokemon:
         seed = random.randint(0, 100)
         if seed <= self.mosse[idx].precisione:
 
-            nemico.hp -= danno
+            nemico.set_hp(nemico.hp_var.get()-danno)
+            messagebox.showinfo("Attacco!", f"{self.nome} ha colpito con {self.mosse[idx].nome}!")
             return True
 
+        messagebox.showinfo("Attacco!", f"{self.nome} ha mancato il bersaglio!")
         return False
 
 
@@ -104,8 +106,8 @@ mosse_torchic = [
 ]
 
 mosse_mudkip = [
-    Mossa(nome="Pistolacqua", potenza=13, precisione=80, tipo="Acqua"),
-    Mossa(nome="Botta", potenza=10, precisione=75, tipo="Normale"),
+    Mossa(nome="Pistolacqua", potenza=50, precisione=80, tipo="Acqua"),
+    Mossa(nome="Botta", potenza=20, precisione=75, tipo="Normale"),
 ]
 
 POKEMON = [
@@ -368,15 +370,26 @@ class BattleWindow(tk.Toplevel):
         )  # bottom-right
         self.place_sprite(self.canvas, pokemonPlayer.back_sprite, 200, 260)
         self.place_sprite(self.canvas, pokemonEnemy.sprite, 500, 120)
+        self.movesframe= tk.Frame(self,padx=5,pady=5)
+        self.movesframe.grid(row=1,column=0)
         self.btn_attacca = tk.Button(
-            self,
-            text="ATTACCA",
+            self.movesframe,
+            text=pokemonPlayer.mosse[0].nome,
             font=("Arial", 14, "bold"),
             bg="#ff5050",
             fg="white",
-            command=lambda: enemy_info.set_hp(enemy_info.hp_var.get() - 10),
+            command=lambda: pokemonPlayer.attacca(enemy_info,0),
         )
-        self.btn_attacca.grid(row=1, column=0, pady=20)
+        self.btn_attacca.pack()
+        self.btn_attacca1 = tk.Button(
+            self.movesframe,
+            text=pokemonPlayer.mosse[1].nome,
+            font=("Arial", 14, "bold"),
+            bg="#ff5050",
+            fg="white",
+            command=lambda: pokemonPlayer.attacca(enemy_info,1),
+        )
+        self.btn_attacca1.pack()
 
     def _make_info_frame(self, parent, mon: dict) -> ttk.Frame:
         """Mini pannello con Nome/Lv + HP bar + HP numerici."""
