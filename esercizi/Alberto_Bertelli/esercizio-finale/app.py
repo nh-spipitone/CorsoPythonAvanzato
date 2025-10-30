@@ -6,21 +6,21 @@ import sqlite3
 
 
 DB_FILE = "gioco.db"
-BGPATH = Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
+BGPATH = Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\bg.png")
 POKEMONPATHS = [
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png"),
 ]
 
 POKEMONBACKPATHS = [
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png"),
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png"),
 ]
 
 POKEMONENEMYPATHS = [
-    Path(r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\poochyena.png"),
+    Path(r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\poochyena.png"),
 ]
 THUMB_SIZE = (120, 120)
 
@@ -52,8 +52,10 @@ class Pokemon:
     def stato(self):
         return self.hp > 0
 
-    def attacca(self):
-        pass
+    def attacca(self,nemico):
+        danno = self.attacco
+        nemico.hp -= danno
+        return danno
 
 
 POKEMON = [
@@ -63,8 +65,8 @@ POKEMON = [
         "Erba",
         50,
         10,
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\treecko_back.png",
     ),
     Pokemon(
         "Torchic",
@@ -72,8 +74,8 @@ POKEMON = [
         "Fuoco",
         45,
         12,
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\torchic_back.png",
     ),
     Pokemon(
         "Mudkip",
@@ -81,8 +83,8 @@ POKEMON = [
         "Acqua",
         55,
         9,
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png",
-        r"esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip.png",
+        r"CorsoPythonAvanzato\esercizi\Alberto_Bertelli\esercizio-finale\immagini\mudkip_back.png",
     ),
 ]
 
@@ -214,7 +216,15 @@ class Battaglia_pokemon(tk.Tk):
         window.destroy()
 
     def open_battle_preview(self, pokemonEnemy):
-        BattleWindow(self, self.pokemon_scelto, pokemonEnemy)
+        BattleWindow(self, self.pokemon_scelto, Pokemon(
+        "Poochyena",
+        4,
+        "Buio",
+        48,
+        11,
+        str(POKEMONENEMYPATHS[0]),
+        None
+    ))
 
     def carica_salvataggio(self):
         conn = sqlite3.connect(DB_FILE)
@@ -280,6 +290,10 @@ class BattleWindow(tk.Toplevel):
             340, 220, anchor="nw", window=player_info
         )  # bottom-right
         self.place_sprite(self.canvas, pokemonPlayer.back_sprite, 200, 260)
+        self.place_sprite(self.canvas, pokemonEnemy.sprite, 500, 120)
+        self.btn_attacca = tk.Button(self,text="ATTACCA",font=("Arial", 14, "bold"),bg="#ff5050",fg="white",command=self.attacco)
+        self.btn_attacca.pack(pady=20)
+
 
     def _make_info_frame(self, parent, mon: dict) -> ttk.Frame:
         """Mini pannello con Nome/Lv + HP bar + HP numerici."""
@@ -326,6 +340,9 @@ class BattleWindow(tk.Toplevel):
             self._img_cache.append(image)
         if image:
             canvas.create_image(x, y, image=image)
+
+  
+
 
 
 app = Battaglia_pokemon()
